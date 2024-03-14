@@ -2795,7 +2795,7 @@ setTimeout(() => {
 break;
 default://cross piece is oriented such that more than one move is required to enable placement to the correctly permuted position. 
 if(side_face == 'back'){ // side-face is back
-tempAlgArray ['B','D', 'L`']
+tempAlgArray = ['B','D', 'L`']
 algorithmExecution(tempAlgArray)
 
   // setTimeout(() => {
@@ -2810,7 +2810,7 @@ algorithmExecution(tempAlgArray)
 
 
 }else if(side_face == 'left'){ // side face is front
-  tempAlgArray ['L','D', 'F`']
+  tempAlgArray = ['L','D', 'F`']
 algorithmExecution(tempAlgArray)
 
   // setTimeout(() => {
@@ -2824,7 +2824,7 @@ algorithmExecution(tempAlgArray)
   // }, 3000);
 
 }else if(side_face == 'front'){ // side-face is front
-  tempAlgArray ['F','D', 'R`']
+  tempAlgArray = ['F','D', 'R`']
 algorithmExecution(tempAlgArray)
 
   // setTimeout(() => {
@@ -2839,7 +2839,7 @@ algorithmExecution(tempAlgArray)
 
 
 }else{ // side-face must be right
-  tempAlgArray ['R','D', 'B`']
+  tempAlgArray = ['R','D', 'B`']
 algorithmExecution(tempAlgArray)
 
   // setTimeout(() => {
@@ -2917,7 +2917,7 @@ switch(permutation){
   function crossPermutation0132(){
     console.log('0132 permutation')
     let tempAlgArray = []
-    tempAlgArray ['R2','D', 'R2`','D`', 'R2']
+    tempAlgArray = ['R2','D', 'R2`','D`', 'R2']
 algorithmExecution(tempAlgArray)
 
 
@@ -2959,7 +2959,7 @@ algorithmExecution(tempAlgArray)
   function crossPermutation0213(){
     console.log('0213 permutation')
     let tempAlgArray = []
-    tempAlgArray ['L2','D`', 'L2`','D', 'L2']
+    tempAlgArray = ['L2','D`', 'L2`','D', 'L2']
 algorithmExecution(tempAlgArray)
 
 
@@ -3000,7 +3000,7 @@ algorithmExecution(tempAlgArray)
   function crossPermutation0231(){
     console.log('0231 permutation')
     let tempAlgArray = []
-    tempAlgArray ['R2','D`', 'R2`','D', 'R2','D']
+    tempAlgArray = ['R2','D`', 'R2`','D', 'R2','D']
 algorithmExecution(tempAlgArray)
 
 
@@ -3050,7 +3050,7 @@ algorithmExecution(tempAlgArray)
 
   function crossPermutation0312(){
     let tempAlgArray = []
-    tempAlgArray ['L2','D', 'L2`','D`', 'L2','D`']
+    tempAlgArray = ['L2','D', 'L2`','D`', 'L2','D`']
 algorithmExecution(tempAlgArray)
 
 
@@ -3097,7 +3097,7 @@ algorithmExecution(tempAlgArray)
 
   function antiIdentityPermutation0321(){
     let tempAlgArray = []
-    tempAlgArray ['L2','D2', 'L2`','D2', 'L2']
+    tempAlgArray = ['L2','D2', 'L2`','D2', 'L2']
 algorithmExecution(tempAlgArray)
 
 
@@ -3488,59 +3488,74 @@ let edgeIndex = F2LPair['edge_details']['edge_index']
 
       // HERE WE NEED TO EXECUTE MOVES TO GET THE F2L PAIR OUT OF THE WAY UP INTO THE LAST LAYER, AND IN ORDER THAT THE DOWN LAYER CAN BE RESET TO THE SOLVED POSITION.   This depends on the exact position of the piece which will have to be switched; 
       setTimeout(() => {
+        let tempAlgArray = []
         switch(edgeIndex){
+
           case 0:
-            setTimeout(() => {
-              leftRotate('l-btn') 
-            }, 1000);
-            setTimeout(() => {
-              upRotate('u-btn')
-            }, 2000);
-            setTimeout(() => {
-              leftRotate('l-prime-btn') 
-            }, 3000);
+            tempAlgArray = ['L','U', 'L`']
+        algorithmExecution(tempAlgArray)
+
+
+
+            // setTimeout(() => {
+            //   leftRotate('l-btn') 
+            // }, 1000);
+            // setTimeout(() => {
+            //   upRotate('u-btn')
+            // }, 2000);
+            // setTimeout(() => {
+            //   leftRotate('l-prime-btn') 
+            // }, 3000);
             console.log('UPRIGHT F2L PAIRE MOVED FROM BACK-LEFT EDGE TO LAYER 1')
 
 
             break;
             case 1:
-              setTimeout(() => {
-                frontRotate('f-btn')
-              }, 1000);
-              setTimeout(() => {
-                upRotate('u-btn')
-              }, 2000);
-              setTimeout(() => {
-                frontRotate('f-prime-btn')
-              }, 3000);
+              tempAlgArray = ['F','U', 'F`']
+              algorithmExecution(tempAlgArray)
+
+              // setTimeout(() => {
+              //   frontRotate('f-btn')
+              // }, 1000);
+              // setTimeout(() => {
+              //   upRotate('u-btn')
+              // }, 2000);
+              // setTimeout(() => {
+              //   frontRotate('f-prime-btn')
+              // }, 3000);
 
               console.log('UPRIGHT F2L PAIRE MOVED FROM FRONT-LEFT EDGE TO LAYER 1')
 
               break;
               case 2:
-                setTimeout(() => {
-                  rightRotate('r-btn')
-                }, 1000);
-                setTimeout(() => {
-                  upRotate('u-btn')
-                }, 2000);
-                setTimeout(() => {
-                  rightRotate('r-prime-btn')
-                }, 3000);
+                tempAlgArray = ['R','U', 'R`']
+                algorithmExecution(tempAlgArray)
+
+                // setTimeout(() => {
+                //   rightRotate('r-btn')
+                // }, 1000);
+                // setTimeout(() => {
+                //   upRotate('u-btn')
+                // }, 2000);
+                // setTimeout(() => {
+                //   rightRotate('r-prime-btn')
+                // }, 3000);
                 console.log('UPRIGHT F2L PAIRE MOVED FROM FRONT-RIGHT EDGE TO LAYER 1')
 
 
                 break;
                 default: // vertical edge index is 3
-setTimeout(() => {
-  backRotate('b-btn')
-}, 1000);
-setTimeout(() => {
-  upRotate('u-btn')
-}, 2000);
-setTimeout(() => {
-  backRotate('b-prime-btn')
-}, 3000);
+                tempAlgArray = ['B','U', 'B`']
+                algorithmExecution(tempAlgArray)
+// setTimeout(() => {
+//   backRotate('b-btn')
+// }, 1000);
+// setTimeout(() => {
+//   upRotate('u-btn')
+// }, 2000);
+// setTimeout(() => {
+//   backRotate('b-prime-btn')
+// }, 3000);
 
 
 
