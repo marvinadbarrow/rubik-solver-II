@@ -2304,6 +2304,8 @@ updateLayer1CrossEdges()
 
 }, 4600);
 
+
+
   }
 }
 
@@ -2320,16 +2322,8 @@ let oriented;
 // array for cross edges on middle layer
 let lastLayerCrossEdgesArray = []
 
-
-
-
-
 function checkCrossPiecesLastLayer(){
-  // clear previous array values for new cross pieces if found
   lastLayerCrossEdgesArray = []
-
-  // temporary array to hold moves for algorithm executor
-  let tempAlgArray = []
 // console.log('checking last layer from white cross edge pieces... ')
 
 upLayerEdges.forEach((edge,index) =>{
@@ -2351,7 +2345,9 @@ upLayerEdges.forEach((edge,index) =>{
                 facetIndexes = [0, 3]
               }
 
-// push cross piece to LL array
+
+
+
 lastLayerCrossEdgesArray.push({
 'index': index,
 'facet_indexes': facetIndexes,
@@ -2373,7 +2369,7 @@ childIndex = childObj['index']
 // get side-face name associated with child. NOTE: irrespective of the orientation of the cross piece on the last layer, that is, whether the white facet is on the up-face or a side-face, the side face that the cross piece sits on is the face that needs to be turned initially in order to move the cross piece. the path of the cross piece will change depending on the orientation of the piece, which can be determined using the IF/ELSE condition below
 childPosition = childObj['piece_position'][1]
 
- // CHCK PIECE ORIENTATION TO SEE WHETHER IT CAN BE INSERTED DIRECTLY OR NOT
+ // determine child non-white facet color
  if(childCrossEdge[0] == 'w'){ // the white face is facing upward, because the first colour in the edge array refers to the up direction
   childColor = childCrossEdge[1] // so the side-face holds the color facet; the piece is oriented for direct placement
   oriented = true;
@@ -2395,108 +2391,153 @@ let masterEdgePiece = orientedCrossEdgeArray[0]
  // get index of master 
  let masterIndex = masterEdgePiece['index_in_layer']
 
-// variable for parameter which details the number of moves from the master color index to the natural index of the secondary color
-let distanceToPermuted;
+
 // switch master color and determine child colour, then send, as parameters to the 'place last layer cross piece' function, master and child index, number of rotations from master index to permuted child index, oriented status of cross piece, and the name of the side-face that the cross piece sits on. 
 
 if(masterColor  == 'o'){ // colour is ORANGE
+  // DETERMINE THE COLOUR OF THE SECOND PIECE
   if(childColor == 'g'){ // colour 2 is 'GREEN'
-  distanceToPermuted = 3;
+    placeLastLayerCrossPiece(masterIndex, childIndex, 3, oriented, childPosition)
   }else if(childColor == 'r'){ // colour is RED 
-    distanceToPermuted = 2;
+    placeLastLayerCrossPiece(masterIndex, childIndex, 2, oriented, childPosition)
   }else{ // the remaining colour must be BLUE
-    distanceToPermuted = 1;
+    placeLastLayerCrossPiece(masterIndex, childIndex, 1, oriented, childPosition)
             }
-  }else if(masterColor == 'b'){ 
-    // colour is RED
+  }else if(masterColor == 'b'){ // colour is RED
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
     if(childColor == 'o'){ // colour 2 is 'ORANGE'
-  distanceToPermuted = 3;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 3, oriented, childPosition)
     }else if(childColor == 'g'){ // colour is GREEN 
-    distanceToPermuted = 2;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 2, oriented, childPosition)
     }else{ // the remaining colour must be RED
-    distanceToPermuted = 1;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 1, oriented, childPosition)
     }
-  }else if(masterColor == 'r'){
-     // colour is RED
+  }else if(masterColor == 'r'){ // colour is RED
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
     if(childColor == 'b'){ // colour 2 is 'BLUE'
-  distanceToPermuted = 3;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 3, oriented, childPosition)
     }else if(childColor == 'o'){ // colour is ORANGE 
-    distanceToPermuted = 2;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 2, oriented, childPosition)
     }else{ // the remaining colour must be GREEN
-    distanceToPermuted = 1;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 1, oriented, childPosition)
     }
-  }else{
-    // colour must be GREEN
+  }else{// colour must be GREEN
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
     if(childColor == 'r'){ // colour 2 is 'RED'
-  distanceToPermuted = 3;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 3, oriented, childPosition)
     }else if(childColor == 'b'){ // colour is BLUE 
-    distanceToPermuted = 2;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 2, oriented, childPosition)
     }else{ // the remaining colour must be ORANGE
-    distanceToPermuted = 1;
+      placeLastLayerCrossPiece(masterIndex, childIndex, 1, oriented, childPosition)
     }
   }
- // now all data is collected
-  placeLastLayerCrossPiece(masterIndex, childIndex, distanceToPermuted, oriented, childPosition)
-
+ 
 }else{   console.log('there are no cross pieces on the down layer')
   // there are no oriented cross pieces on the down layer, so the last layer cross piece can be inserted without a permutation check - either just doing a double rotation on the side-face, if 'oriented === true', or a single forward rotation of the side-face and then a prime rotation of the face at index '(side-face index + 1)%4', if 'oriented === false'. 
+
   if(oriented === true){ // the white facet is on the up-face
     switch(childPosition){
       case 'back': // double rotate back
-tempAlgArray = ['B2']
+        backRotate('b2-btnless', 'double')
         break;
         case 'left': // double rotate left
-        tempAlgArray = ['L2']
+          leftRotate('l2-btnless', 'double')
           break;
           case 'front': // double rotate front
-          tempAlgArray = ['F2']
+            frontRotate('f2-btnless', 'double')
             break;
             default: // this must be the right face - double rotate right
-            tempAlgArray = ['R2']
+            rightRotate('r2-btnless', 'double')
     }
-// send move for execution
-algorithmExecution(tempAlgArray)
-    // since there were initially no pieces on the down layer, we know that there is a piece on the layer now and there's no need to check it; move onto the mid layer check
-    setTimeout(() => {
-      checkNonOrientedCrossPieces()
-    }, 1500);
 
-  }else if(oriented === false){ // white facet is side facing so more than on move is required
+    // after the piece is placed, execute the down layer check
+    setTimeout(() => {
+      checkCrossDownLayer()
+    }, 500);
+
+  }else if(oriented === false){
 
     switch(childPosition){
       case 'back': // single rotate back, followed by left prime
-     tempAlgArray = ['B', 'L`']
+      setTimeout(() => {
+        backRotate('b-btn')
+      }, 1000);
+      setTimeout(() => {
+        leftRotate('l-prime-btn')
+      }, 2000);
+     
+      
         break;
         case 'left': // single rotate left, followed by front prime
-    tempAlgArray = ['L', 'F`']
+        setTimeout(() => {
+          leftRotate('l-btn')
+        }, 1000);
+        setTimeout(() => {
+          frontRotate('f-prime-btn')
+        }, 2000);
+       
+         
           break;
           case 'front': // single rotate front, followed by right prime
-    tempAlgArray = ['F', 'R`']
+          setTimeout(() => {
+            frontRotate('f-btn')
+          }, 1000);
+          setTimeout(() => {
+            rightRotate('r-prime-btn')
+          }, 2000);
+         
+          
             break;
             default: // this must be the right face - single rotate right, followed by back prime
-    tempAlgArray = ['R', 'B`']
+            setTimeout(() => {
+              rightRotate('r-btn')
+            }, 1000);
+            setTimeout(() => {
+              backRotate('b-prime-btn')
+            }, 2000);
+            
+            
     }
-  // execute algorithm function
-  algorithmExecution(tempAlgArray)
+  
+
 setTimeout(() => {
   updateLayer1CrossEdges()
+  console.log(orientedCrossEdgeArray)
+  console.log('line 2154')
   if(orientedCrossEdgeArray.length < 4){
+    console.log(orientedCrossEdgeArray.length)
     checkNonOrientedCrossPieces()
   }else{
+    // handle cross
     handleFullCross()
   }
-}, 4000);
+}, 3000);
   }else{
     // something is wrong; there is no orientation information on the last layer cross piece
     console.log('there is no orientation information on the child cross piece')
-alert('there is no orientation information on the cross piece, check the console')
+
+
     updateLayer1CrossEdges()
+    console.log(orientedCrossEdgeArray)
+    console.log('line 2154')
+    if(orientedCrossEdgeArray.length < 4){
+      console.log(orientedCrossEdgeArray.length)
+      // NEXT FUNCTION
+      // checkNonOrientedCrossPieces()
+    }else{
+      // handle cross
+      handleFullCross()
+    }
+    
   }
 }
 }else{
   // no cross pieces on last layer
   updateLayer1CrossEdges()
+  console.log(orientedCrossEdgeArray)
+  console.log('line 2154')
   if(orientedCrossEdgeArray.length < 4){
+    console.log(orientedCrossEdgeArray.length)
     checkNonOrientedCrossPieces()
   }else{
     // handle cross
@@ -2506,14 +2547,11 @@ alert('there is no orientation information on the cross piece, check the console
 }
 
 
+
+
+
 // placing a lasts layer cross piece into down layer oriented and permuted. 
 function placeLastLayerCrossPiece(masterIndex, childIndex, permuteDistance, orientation, side_face){
- // variable for calculating the time it takes for the algorithm to complete (number of moves x 1500 milliseconds) so that post algorithm checks for update of piece positions occur after the moves. 
-
-  let firstMove;
-let secondMove;
-let thirdMove;
-let algoArray = []
   console.log('running placement of last layer cross piece... line 1922')
   // 'permuted' variable gives index position where correctly permuted 'B' sits relative to 'A'
   let permutedIndex = (masterIndex + permuteDistance)%4; // this will give a number between 0 and 3
@@ -2529,52 +2567,83 @@ let algoArray = []
   switch(orientation){
     case true: // cross piece is oriented such that it can be placed directly to the correctly permuted position, in one move
     if(side_face == 'back'){
-      algoArray = ['B2']
+
+      backRotate('b2-btnless', 'double')
     }else if(side_face == 'left'){
-      algoArray = ['L2']
+      leftRotate('l2-btnless', 'double')
     }else if(side_face == 'front'){
-      algoArray = ['F2']
+      frontRotate('f2-btnless', 'double')
     }else{ // side-face must be right
-      algoArray = ['R2']
-    }   
-    // EXECUTE double rotation
-    algorithmExecution(algoArray)
+      rightRotate('r2-btnless', 'double')
+    }
 
-    setTimeout(() => {
-      updatedCrossCheck()
-    }, 2000);
-
-
+    
 break;
 default://cross piece is oriented such that more than one move is required to enable placement to the correctly permuted position. 
 if(side_face == 'back'){
-  firstMove = 'B'
-  secondMove = 'D'
-  thirdMove = 'L`'
+  setTimeout(() => {
+    backRotate('b-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn') 
+  }, 2000);
+  setTimeout(() => {
+    leftRotate('l-prime-btn') 
+  }, 3000);
 }else if(side_face == 'left'){
-    firstMove = 'L'
-    secondMove = 'D'
-    thirdMove = 'F`'
+  setTimeout(() => {
+    leftRotate('l-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn') 
+  }, 2000);
+  setTimeout(() => {
+    frontRotate('f-prime-btn')
+  }, 3000);
 }else if(side_face == 'front'){
-firstMove = 'F'
-secondMove = 'D'
-thirdMove = 'R`'
+  setTimeout(() => {
+    frontRotate('f-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn') 
+  }, 2000);
+  setTimeout(() => {
+    rightRotate('r-prime-btn')
+  }, 3000);
 }else{ // side-face must be right
-firstMove = 'R'
-secondMove = 'D'
-thirdMove = 'B`'
+  setTimeout(() => {
+    rightRotate('r-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn')
+  }, 2000);
+  setTimeout(() => {
+    backRotate('b-prime-btn')
+  }, 3000);
 }
-// collect three moves into the algo array and send to algorithm execution function
-algoArray = [firstMove, secondMove, thirdMove]
-algorithmExecution(algoArray)
 
-setTimeout(() => {
-updatedCrossCheck()
-}, 6000);
+
    }
  
  }, 1000);
 // run and check for non oriented pieces on the down layer now that a pass of all levels of the cube has been made
+setTimeout(() => {
+  updateLayer1CrossEdges()
+  console.log(orientedCrossEdgeArray)
+  console.log('line 2154')
+  if(orientedCrossEdgeArray.length < 4){
+    console.log('the number of oriented cross pieces on the down layer is:')
+    console.log(orientedCrossEdgeArray.length)
+    checkNonOrientedCrossPieces()
+  }else{
+    // handle cross
+    handleFullCross()
+  }
+
+}, 5000);
+
+
+
 
 }else{ // the cross piece is not at the correctly permuted index. So before it can be placed the down layer needs to be rotated the appropriate distance
 
@@ -2586,85 +2655,132 @@ updatedCrossCheck()
     rotationsToPermuted = rawRotation
   }
 
-  // DETERMINE DOWN LAYER ROTATION WHICH WILL CORRECT ITS POSITION READY TO HAVE CROSS PIECE INSERTED
+  // ROTATE DOWN LAYER TO CORRECT POSITION READY TO HAVE CROSS PIECE INSERTED
   setTimeout(() => {
-    // switch rotations to permuted to see how many rotations are required
-switch(rotationsToPermuted){
-case 1:
-firstMove = 'D'
-break;
-case 2:
-firstMove = 'D2'
-break;
-default: // this value must be 3, since there are only three possible rotation positions if the child cross piece is not permuted correctly. D prime is the same as D3
-firstMove = 'D`'
-}
+    // switch rotations to permuted to see how many rotations to make on the down layer
+    switch(rotationsToPermuted){
+      case 1:
+        downRotate('d-btn')
+        break;
+        case 2:
+          downRotate('d2-btnless', 'double')
+          break;
+          default: // this value must be 3, since there are only three possible rotation positions if the child cross piece is not permuted correctly. 
+          downRotate('d-prime-btn')
+  
+    }
+  }, 1000);
+  // now rotate the down layer accordingly by switching the value of rotations to permuted value
 
-  // now down rotation is figured out,  so that  childIndex === rotationsToPermuted will be achieved, the orientation of the cross piece needs checking 
-
+  // once the down face is rotated, exexute the rotations required for childIndex === rotationsToPermuted
+  // FIRST: check the orientation of the cross piece. 
+ setTimeout(() => {
+  // CHECKING CROSS PIECE ORIENTATION
+  let tempAlgArray = []
   switch(orientation){
-    case true: // cross piece is oriented such that it can be placed directly to the correctly permuted position, in one move.  Combine the first move, the down rotation that results in childIndex === rotationsToPermuted, with the move required to insert the cross piece from the last layer, into the temporary algorithm array 
+    case true: // cross piece is oriented such that it can be placed directly to the correctly permuted position, in one move
     if(side_face == 'back'){
-      algoArray = [firstMove, 'B2']
+      backRotate('b2-btnless', 'double')
     }else if(side_face == 'left'){
-      algoArray = [firstMove, 'L2']
+      leftRotate('l2-btnless', 'double')
     }else if(side_face == 'front'){
-      algoArray = [firstMove, 'F2']
+      frontRotate('f2-btnless', 'double')
     }else{ // side-face must be right
-      algoArray = [firstMove, 'R2']
+      rightRotate('r2-btnless', 'double')
     }
-
-    // send array containing rotations, to the algorithm executor
-    algorithmExecution(algoArray)
-        // update cross check - two moves take 3 seconds so wait four seconds before check
-        setTimeout(() => {
-          updatedCrossCheck()
-          }, 4000);
 break;
-default://cross piece is oriented such that more than one move is required to enable placement to the correctly permuted position.   Combine the first move, the down rotation that results in childIndex === rotationsToPermuted, with the move required to insert the cross piece from the last layer, into the temporary algorithm array 
+default://cross piece is oriented such that more than one move is required to enable placement to the correctly permuted position. 
 if(side_face == 'back'){ // side-face is back
-algoArray = [firstMove, 'B','D', 'L`']
+tempAlgArray = ['B','D', 'L`']
+algorithmExecution(tempAlgArray)
+
+  // setTimeout(() => {
+  //   backRotate('b-btn')
+  // }, 1000);
+  // setTimeout(() => {
+  //   downRotate('d-btn')
+  // }, 2000);
+  // setTimeout(() => {
+  //   leftRotate('l-prime-btn')
+  // }, 3000);
+
+
 }else if(side_face == 'left'){ // side face is front
-  algoArray = [firstMove, 'L','D', 'F`']
+  tempAlgArray = ['L','D', 'F`']
+algorithmExecution(tempAlgArray)
+
+  // setTimeout(() => {
+  //   leftRotate('l-btn')
+  // }, 1000);
+  // setTimeout(() => {
+  //   downRotate('d-btn')
+  // }, 2000);
+  // setTimeout(() => {
+  //   frontRotate('f-prime-btn')
+  // }, 3000);
+
 }else if(side_face == 'front'){ // side-face is front
-  algoArray = [firstMove, 'F','D', 'R`']
+  tempAlgArray = ['F','D', 'R`']
+algorithmExecution(tempAlgArray)
+
+  // setTimeout(() => {
+  //   frontRotate('f-btn')
+  // }, 1000);
+  // setTimeout(() => {
+  //   downRotate('d-btn')
+  // }, 2000);
+  // setTimeout(() => {
+  //   rightRotate('r-prime-btn')
+  // }, 3000);
+
+
 }else{ // side-face must be right
-  algoArray = [firstMove, 'R','D', 'B`']
-}
+  tempAlgArray = ['R','D', 'B`']
+algorithmExecution(tempAlgArray)
 
-    // EXECUTE algorithm with temp array
-    algorithmExecution(algoArray)
-    // update cross check  - four moves take 6 seconds so wait seven seconds before checking the updated cross
-    setTimeout(() => {
-      updatedCrossCheck()
-      }, 7000);
-
-   } // END OF SWITCH
- }, 1000);
-
-
-}
-
-
-
-// function to update cross and check; if all pieces are on down layer then handle the full cross, otherwise check for non oriented cross pieces on the down layer. 
-function updatedCrossCheck(){
-  updateLayer1CrossEdges()
-  setTimeout(() => {
-    if(orientedCrossEdgeArray.length < 4){
-      checkNonOrientedCrossPieces()
-    }else{
-      handleFullCross()
-    }
-  }, 500);
+  // setTimeout(() => {
+  //   rightRotate('r-btn')
+  // }, 1000);
+  // setTimeout(() => {
+  //   downRotate('d-btn')
+  // }, 2000);
+  // setTimeout(() => {
+  //   backRotate('b-prime-btn')
+  // }, 3000);
 
 }
+   }
+ }, 1200);
+
+ setTimeout(() => {
+ updateLayer1CrossEdges()
+console.log(orientedCrossEdgeArray)
+console.log('line 2154')
+
+
+if(orientedCrossEdgeArray.length < 4){
+  console.log(orientedCrossEdgeArray.length)
+  checkNonOrientedCrossPieces()
+}else{
+  // handle cross
+  handleFullCross()
+}
+}, 6000);
+}
 }
 
+/*
 
-
-// ALL THE  UPDATES CAN HAPPEN AFTER ALGORITHMS
-
+let totalOriented = 0;
+downLayerEdges.forEach(edge =>{
+if(edge[0] == 'w'){
+  totalOriented ++;
+}
+})
+  if(totalOriented < 4){
+    checkNonOrientedCrossPieces()
+  }
+ */
 
  // function switches permutation of cross pieces to determine which set of moves are needed to solve the permutation. 
   function fullCrossPermutations(permutation){
@@ -2700,6 +2816,27 @@ switch(permutation){
     tempAlgArray = ['R2','D', 'R2`','D`', 'R2']
 algorithmExecution(tempAlgArray)
 
+
+    // setTimeout(() => {
+    //   rightRotate('r2-btnless', 'double')
+    // },1000);
+
+    // setTimeout(() => {
+    //   downRotate('d-btn')
+    // },2500);
+
+    // setTimeout(() => {
+    //   rightRotate('r2-btnless', 'double')
+    // },3500);
+
+    // setTimeout(() => {
+    //   downRotate('d-prime-btn')
+    // },5000);
+
+    // setTimeout(() => {
+    //   rightRotate('r2-btnless', 'double')
+    // },6000);
+
     // if one piece is incorrectly oriented thetn run the function for checking incorrectly oriented pieces on the down layer
     setTimeout(() => {
     if(incorrectlyOrientedPieceArray.length > 0){
@@ -2721,6 +2858,26 @@ algorithmExecution(tempAlgArray)
     tempAlgArray = ['L2','D`', 'L2`','D', 'L2']
 algorithmExecution(tempAlgArray)
 
+
+    // setTimeout(() => {
+    //   leftRotate('l2-btnless', 'double')
+    // },1000);
+
+    // setTimeout(() => {
+    //   downRotate('d-prime-btn')
+    // },2500);
+
+    // setTimeout(() => {
+    //   leftRotate('l2-btnless', 'double')
+    // },3500);
+
+    // setTimeout(() => {
+    //   downRotate('d-btn')
+    // },5000);
+
+    // setTimeout(() => {
+    //   leftRotate('l2-btnless', 'double')
+    // },6000);
         // if one piece is incorrectly oriented thetn run the function for checking incorrectly oriented pieces on the down layer
         setTimeout(() => {
           if(incorrectlyOrientedPieceArray.length > 0){
@@ -2741,6 +2898,33 @@ algorithmExecution(tempAlgArray)
     let tempAlgArray = []
     tempAlgArray = ['R2','D`', 'R2`','D', 'R2','D']
 algorithmExecution(tempAlgArray)
+
+
+
+//     setTimeout(() => {
+//       rightRotate('r2-btnless', 'double')
+//     },1000);
+
+//     setTimeout(() => {
+//       downRotate('d-prime-btn')
+//     },2000);
+
+//     setTimeout(() => {
+//       rightRotate('r2-btnless', 'double')
+//     },3000);
+
+//     setTimeout(() => {
+//       downRotate('d-btn')
+//     },4000);
+
+//     setTimeout(() => {
+//       rightRotate('r2-btnless', 'double')
+//     },5000);
+// // needs an extra D-rotate at the end to correctly calibrate the cross
+//     setTimeout(() => {
+//       downRotate('d-btn')
+//     },6000);
+
 
 
         // if one piece is incorrectly oriented thetn run the function for checking incorrectly oriented pieces on the down layer
@@ -2766,6 +2950,31 @@ algorithmExecution(tempAlgArray)
 algorithmExecution(tempAlgArray)
 
 
+//     setTimeout(() => {
+//       leftRotate('l2-btnless', 'double')
+//     },1000);
+
+//     setTimeout(() => {
+//       downRotate('d-btn')
+//     },2500);
+
+//     setTimeout(() => {
+//       leftRotate('l2-btnless', 'double')
+//     },3500);
+
+//     setTimeout(() => {
+//       downRotate('d-prime-btn')
+//     },5000);
+
+//     setTimeout(() => {
+//       leftRotate('l2-btnless', 'double')
+//     },6000);
+
+// // needs an extra D-PRIME rotate at the end to correctly calibrate the cross
+// setTimeout(() => {
+//   downRotate('d-prime-btn')
+// },7500);
+
     // if one piece is incorrectly oriented thetn run the function for checking incorrectly oriented pieces on the down layer
     setTimeout(() => {
       updateLayer1CrossEdges()
@@ -2787,6 +2996,26 @@ algorithmExecution(tempAlgArray)
     tempAlgArray = ['L2','D2', 'L2`','D2', 'L2']
 algorithmExecution(tempAlgArray)
 
+
+    // setTimeout(() => {
+    //   leftRotate('l2-btnless', 'double')
+    // },1000);
+
+    // setTimeout(() => {
+    //   downRotate('d2-btnless', 'double')
+    // },2500);
+
+    // setTimeout(() => {
+    //   leftRotate('l2-btnless', 'double')
+    // },4000);
+
+    // setTimeout(() => {
+    //   downRotate('d2-btnless', 'double')
+    // },5500);
+
+    // setTimeout(() => {
+    //   leftRotate('l2-btnless', 'double')
+    // },7000);
 
         // if one piece is incorrectly oriented then run the function for checking incorrectly oriented pieces on the down layer
         setTimeout(() => {
@@ -2887,40 +3116,27 @@ cornerFacetIndexes = [5, 0, 3]
               })
 
 
+        // AFTER, the loop through the first layer, check if an F2L corner piece been recorded in the array for the pieces
+        if(F2LCornersFirstLayerArray.length > 0){
+          // if at least one F2L corner is recorded, send the array for assessment. 
+          assessF2LCornerPiece(F2LCornersFirstLayerArray)
+        }else{ // otherwise no F2L corner piece was found; run LAST LAYER search for corner pieces
+          findF2LcornersLastLayer()
+        }
 
 
 
         // the next thing to do is determine the non-white colours of the corner piece. 
         // after that is done, then a search needs to be made for the edge piece matching the two non-white colours of the corner piece
 
-  }, 1000);
+  }, 1500);
 
   }
 
-setTimeout(() => {
-          // AFTER, the loop through the first layer, check if an F2L corner piece been recorded in the array for the pieces
-          if(F2LCornersFirstLayerArray.length > 0){
-            console.log(F2LCornersFirstLayerArray)
-            // if at least one F2L corner is recorded, send the array for assessment. 
-            assessF2LCornerPiece(F2LCornersFirstLayerArray)
-            console.log('looking for another F2L corner piece')
-          }else{ // otherwise no F2L corner piece was found; run LAST LAYER search for corner pieces
-          console.log('no further F2L corners were found on the first layer')
-          findF2LcornersLastLayer()
-          }
-}, 2000);
 
 
 
 }
-
-
-function intermediateTestFunction(word){
-  console.log(word)
-
-}
-
-
 
 
 function findF2LcornersLastLayer(){
@@ -2963,23 +3179,31 @@ console.log('check last layer for F2L corner pieces')
              }
 
 
+// there MUST be white corners on the last layer if none were found on the first layer
+if(F2LCornersLastLayerArray.length > 0){
+console.log('F2L corner piece found on last layer')
+console.log(F2LCornersLastLayerArray)
+assessF2LCornerPiece(F2LCornersLastLayerArray)
+}else{
+  // logically this scenario should not occur because the last layer check can only occur if the first layer check doesn't find any unsolved corner edges; if no unsolved corners are found on either layer, this has to mean that the number of solved edges is 4, so the check on the last layer should never happen.  This is here for debugging purposes. 
+console.log('no F2L unsolved corner pieces were found on the last layer')
 
+}
 
         })
 
-  // there MUST be white corners on the last layer if none were found on the first layer
-if(F2LCornersLastLayerArray.length > 0){
-  console.log('F2L corner piece found on last layer')
-  console.log(F2LCornersLastLayerArray)
-  assessF2LCornerPiece(F2LCornersLastLayerArray)
-  }else{
-    // logically this scenario should not occur because the last layer check can only occur if the first layer check doesn't find any unsolved corner edges; if no unsolved corners are found on either layer, this has to mean that the number of solved edges is 4, so the check on the last layer should never happen.  This is here for debugging purposes. 
-  console.log('no F2L unsolved corner pieces were found on the last layer')
   
-  }
 
 
 }
+
+
+
+
+
+
+
+
 
 function assessF2LCornerPiece(array){
 console.log(array)
@@ -3104,14 +3328,13 @@ if(numberOfEdges > 0){
   console.log('checking up layer edges FOR F2L edge piece')
   // then no matching edge was found on the first layer - check the last layer
   upLayerEdges.forEach((upEdge, indexOfEdge) =>{
-console.log('currently examined edge')
+
   console.log(upEdge)
     if((upEdge[0] == cornerObject['edge_requirements']['default_edge'][0] && upEdge[1] == cornerObject['edge_requirements']['default_edge'][1]) || (upEdge[1] == cornerObject['edge_requirements']['default_edge'][0] && upEdge[1] == cornerObject['edge_requirements']['flipped_edge'][1])){
          // assign the edge the matchingEdge variable
     matchingEdge = upEdge
     console.log('edge found on up layer')
-    console.log('this is the matching edge')
-   console.log(matchingEdge)
+   
 
     // create an object for the matching edge and associated vertical edge
     let edgeObject = {
@@ -3201,12 +3424,8 @@ console.log(F2LPairOrientation)
 
     // NOTE 2: I've decided that the best way to solve pieces is not to solve them at the location where they are found, but to move corner pieces or unsolved F2L pairs to the top layer, and then to execute the algorithm specific to the relative positions of the two pieces and the position of the corner piece relative to its natural vertical edge.  Only AFTER this is done, will we assess the rotation of corner pieces, the orientation of edge pieces, and their absolute distance from their associated F2L corner piece - the vertical edge facet indexes will not be needed. 
 
-    let firstMoveDown;
-let secondMove;
-let thirdMove;
 
-
-    // for determining how to rotate an F2L pair on a specific vertical edge up to the the last layer, use the index of the vertical edge as a guide; if the vertical index is 'x', then a clockwise rotation of the face at index 'x + 1' will move the F2L pair into the last layer.  then, the last layer will rotate or prime rotate depending on the orientation of of the F2L pair.  If the pair was a layer 1/2 pair then a clockwise rotation of the last layer is needed, otherwise if the pair was a layer 2/3 pair, it is inverted, so a last layer prime rotation is required.  The orientation is already given in the case that determines how a pair is joined. 
+    // for determining how to turn an F2L  pair on a specific vertical edge, use the index of the vertical edge as a guide; if the vertical index is 'x', then a clockwise rotation of the face at index 'x + 1' will move the F2L pair into the last layer.  then, the last layer will rotate or prime rotate depending on the orientation of of the F2L pair.  If the pair was a layer 1/2 pair then a clockwise rotation of the last layer is needed, otherwise if the pair was a layer 2/3 pair, it is inverted, so a last layer prime rotation is required.  The orientation is already given in the case that determines how a pair is joined. 
 let edgeIndex = F2LPair['edge_details']['edge_index']
 
 
@@ -3216,55 +3435,93 @@ let edgeIndex = F2LPair['edge_details']['edge_index']
       EDGE: layer 2
       CORNER: layer 1
       rotate down layer to pair the pieces - then execute the appropriate rotations to move the pair to the last layer and to position it at the correct vertical index for solving`)
-// DOWN ROTATIONS: rotate value gives the number of rotations needed; last move is just the reverse of the first move, to undo the down rotation so that the cross is permuted again. 
-
+// DOWN ROTATIONS: rotate value gives the number of rotations needed
+      setTimeout(() => {
         switch(rotateValue){
-          case 1: 
-          // downRotate('d-btn')
-          firstMoveDown = 'D'
-          lastMove = 'D`'
+          case 1: downRotate('d-btn')
             break;
-            case 2: 
-            // downRotate('d2-btnless', 'double')
-            firstMoveDown = 'D2'
-            lastMove = 'D2'
+            case 2: downRotate('d2-btnless', 'double')
               break;
-              case 3:
-              //  downRotate('d-prime-btn')
-               firstMoveDown = 'D`'
-               lastMove = 'D'
+              case 3: downRotate('d-prime-btn')
                 break
                 // whichever rotation is used will need to be reversed once the pair is joined and moved to the last layer
         }
- 
+        console.log('DOWN ROTATE TO JOIN CORNER LAYER 1 AND EDGE LAYER 2')
+      }, 1300);
+
       // HERE WE NEED TO EXECUTE MOVES TO GET THE F2L PAIR OUT OF THE WAY UP INTO THE LAST LAYER, AND IN ORDER THAT THE DOWN LAYER CAN BE RESET TO THE SOLVED POSITION.   This depends on the exact position of the piece which will have to be switched; 
       setTimeout(() => {
         let tempAlgArray = []
         switch(edgeIndex){
 
           case 0:
-            tempAlgArray = [firstMoveDown,'L','U', 'L`', lastMove]
+            tempAlgArray = ['L','U', 'L`']
         algorithmExecution(tempAlgArray, 'F2L')
+
+
+
+            // setTimeout(() => {
+            //   leftRotate('l-btn') 
+            // }, 1000);
+            // setTimeout(() => {
+            //   upRotate('u-btn')
+            // }, 2000);
+            // setTimeout(() => {
+            //   leftRotate('l-prime-btn') 
+            // }, 3000);
             console.log('UPRIGHT F2L PAIRE MOVED FROM BACK-LEFT EDGE TO LAYER 1')
 
 
             break;
             case 1:
-              tempAlgArray = [firstMoveDown,'F','U', 'F`', lastMove]
+              tempAlgArray = ['F','U', 'F`']
               algorithmExecution(tempAlgArray, 'F2L')
+
+              // setTimeout(() => {
+              //   frontRotate('f-btn')
+              // }, 1000);
+              // setTimeout(() => {
+              //   upRotate('u-btn')
+              // }, 2000);
+              // setTimeout(() => {
+              //   frontRotate('f-prime-btn')
+              // }, 3000);
+
               console.log('UPRIGHT F2L PAIRE MOVED FROM FRONT-LEFT EDGE TO LAYER 1')
 
               break;
               case 2:
-                tempAlgArray = [firstMoveDown,'R','U', 'R`', lastMove]
+                tempAlgArray = ['R','U', 'R`']
                 algorithmExecution(tempAlgArray, 'F2L')
+
+                // setTimeout(() => {
+                //   rightRotate('r-btn')
+                // }, 1000);
+                // setTimeout(() => {
+                //   upRotate('u-btn')
+                // }, 2000);
+                // setTimeout(() => {
+                //   rightRotate('r-prime-btn')
+                // }, 3000);
                 console.log('UPRIGHT F2L PAIRE MOVED FROM FRONT-RIGHT EDGE TO LAYER 1')
 
 
                 break;
                 default: // vertical edge index is 3
-                tempAlgArray = [firstMoveDown,'B','U', 'B`', lastMove]
+                tempAlgArray = ['B','U', 'B`']
                 algorithmExecution(tempAlgArray, 'F2L')
+// setTimeout(() => {
+//   backRotate('b-btn')
+// }, 1000);
+// setTimeout(() => {
+//   upRotate('u-btn')
+// }, 2000);
+// setTimeout(() => {
+//   backRotate('b-prime-btn')
+// }, 3000);
+
+
+
 
                 console.log('UPRIGHT F2L PAIR MOVED FROM BACK-RIGHT EDGE TO LAYER 1')
         }
@@ -3272,6 +3529,16 @@ let edgeIndex = F2LPair['edge_details']['edge_index']
 
      // UNDO DOWN LAYER MOVEMENTS
 setTimeout(() => {
+  switch(rotateValue){
+    case 1: // reverse rotation using down prime
+    downRotate('d-prime-btn')
+      break;
+    case 2: // double rotation can be undone with a double rotation
+downRotate('d2-btnless', 'double')
+    break;
+    default: // this value must be three - a prime rotation is the equivalent of 3 forward rotationsn, so just oe forward rotation will undo the move
+    downRotate('d-btn')
+  }
 
   // AFTER MOVES HAVE BEEN MADE - CHECK RESULTS
   // where the corner should have landed on the last layer
@@ -3308,96 +3575,9 @@ solveF2LPair(F2LCorner, F2LEdge, newCornerIndex, edgeIndex)
       rotate the edge to the face whose position is 'cornerIndex + 1', then execute a clockwise move on the face that shares the index corner piece index, then use a U' rotation to join the two pieces and do a face-prime on the original move. 
     `)
 console.log(F2LPair)
+
 // to join the edge two pieces on the last layer, which is the required scenario before the solve algorithm can be executed, first check which vertical edge the corner sits on. From there, a decision can be made regarding which face to rotate to move the corner piece to the last layer. Pick the face that requires a forward rotation. Then, get the index of the face, and of the F2L edge piece on the top layer, calculate the difference between the indexes so the last layer can be rotated such that the edge piece sits on the same face, one of the two faces straddled by the vertical edge containing the corner piece, that will be rotated to move the corner piece up to the first layer. Rotating the face will cause the edge to rotate down to the mid layer and the corner piece to rotate up to the last layer.  A U rotation of the last layer will join the pieces, then a prime rotation of the side face (to undo its initial rotation) will bring both pieces to the last layer, after which, the same process that is used to move an F2L pair to the correct vertical index can be used on the pair; then the pair configuration can be assessed and the pair can be solved and inserted. 
 
-
-// get index of corner
-let CornerVerticalIndex = F2LPair['corner_details']['main_details']['vertical_index']
-// original index of the edge
-let edgeCurrentIndex = F2LPair['edge_details']['edge_index'] 
-// the position the edge needs to be moved to for the join to work (use both current and destination index to figure out how much to turn the F2L edge to the correct destination)
-let edgeDestination = (CornerVerticalIndex + 1)%4
-// variable for rotational value for down face
-let rotateValueToEdgeDestination;
-// first step is to check the difference between the edge piece index and the corner piece index
-let distanceToEdgeDestination = edgeDestination - edgeCurrentIndex
-
-// calculate forward rotations to edge destination
-if(distanceToEdgeDestination < 0){
-  rotateValueToEdgeDestination = distanceToEdgeDestination + 4
-}else{rotateValueToEdgeDestination = distanceToEdgeDestination}
-
-// four rotations are required to join the pieces
-let moveOne; // place edge piece
-let moveTwo = '' // rotate side face to bring corner up to last layer
-let moveThree = 'U`' // join the pieces
-let moveFour = '' // undo move two
-let algoArray = []
-
-// DETERMINES UP LAYER ROTATIONS TO POSITION EDGE PIECE
-switch(rotateValueToEdgeDestination){
-  case 1: moveOne = 'U'
-    break;
-    case 2: moveOne = 'U2'
-      break;
-      case 3: moveOne = 'U`'
-        break
-        default:
-          console.log('edge piece already in position')
-        // whichever rotation is used will need to be reversed once the pair is joined and moved to the last layer
-        moveOne = 'N/A'
-}
-
-
-// DETERMINES SIDE-FACE TO ROTATE CLOCKWISE
-switch(CornerVerticalIndex){
-  case 0:
-    moveTwo = 'L';
-    moveFour = 'L`'
-  break;
-  case 1:
-    moveTwo = 'F';
-    moveFour = 'F`'
-    break;
-    case 2:
-      moveTwo = 'R';
-      moveFour = 'R`'
-      break;
-default: // must be vertical edge 3
-moveTwo = 'B';
-moveFour = 'B`'
-}
-
-console.log(`
-move one: ${moveOne}
-move two: ${moveTwo}
-move three: ${moveThree}
-move four: ${moveFour}
-`)
-
-algoArray = [moveOne, moveTwo, moveThree, moveFour]
-console.log('algorithm array')
-console.log(algoArray)
-// position the F2L pair on the last layer
-algorithmExecution(algoArray)
-
-
-// the algorithm will take 6 seconds to execute, so after it is complete, the next step, solving and placing the pair, can run. Get indexes (remember, the edge index will be new, the destination index) of both corner and edge, and send them along with the corner and edge pieces to the solve F2L pair function 
-
-setTimeout(() => {
-
-     // variable for F2L edge and corner arrays holding facets for each piece
-     let F2LEdge = upLayerEdges[edgeDestination]
-     let F2LCorner = upLayerCorners[CornerVerticalIndex]
-     
- console.log('checking parameters for solving pair function')
-console.log(F2LCorner)
-console.log(F2LEdge)
-console.log(CornerVerticalIndex)
-console.log(edgeDestination)
-
-  solveF2LPair(F2LCorner, F2LEdge, CornerVerticalIndex, edgeDestination)
-}, 7000);
 
         break;
         case 5: console.log(`
@@ -3441,46 +3621,56 @@ console.log(edgeDestination)
 
 function solveF2LPair(corner, edge, cornerIndex, edgeIndex){
 
-// use edge facet colours determine the natural vertical edge of the F2L pair so that the pair can be moved to where the F2L corner sits at the natural vertical index of the F2L piece (from where a solve will result in an insertion of the F2L pair in the correct position). Once in the right place, the facets of the pieces can be examined for rotation and orientation, which will, in conjunction with the natural vertical edge index, dictate which algorithm will be executed to solve and insert the F2L pair. 
+// use edge facet colours determine the natural vertical edge of the F2L pair so that the pair can be moved to where the F2L corner sits at the natural vertical index of the F2L piece, from where a solve will result in an insertion of the F2L pair in the correct position. Then the facets of the pieces can be examined for rotation and orientation, which will, in conjunction with the natural vertical edge index, dictate which algorithm will be executed to solve and insert the F2L pair. The final execition decided upon depends on both the configuration of the F2L pair, and its natural vertical index position
 
 
 
+
+// create a string by joining the elements of the edge array 
+let facetString = edge.join('').toString()
 // variable for the natural vertical index of the F2L pair
 let naturalVerticalIndex;
 // variable for the number of forward rotations required to move the F2L corner to the natural vertical index of the F2L pair. 
-let rotationsToNaturalIndex
-
-
-// since orange/red and green/blue are not straddled by an edge, there are only 4 possible combinations of two colors r/g r/b o/g and o/b.  Check which two colours the edge piece array includes and assign the the natural index variable the index of the vertical edge that lies between those two colours
-if(edge.includes('r') && edge.includes('g')){
-  naturalVerticalIndex = 0
-}else if(edge.includes('r') && edge.includes('b')){
-  naturalVerticalIndex = 3
-}else if(edge.includes('o') && edge.includes('b')){
-  naturalVerticalIndex = 2
-}else{// the two colors must be orrange and green which vertical index '1' lies between
+let rotationsToVI
+// switch the string and attribute the appropriate index to the naturalVertualIndex variable, 
+// we'll have the index of the corner, which is the natural vertical edge index, but also needed is the index of the edge on the F2L corner edge once the last layer rotation has occurred. This is because it is important to know which way the F2L corner/edge is pointed. Looking from top down, the corner/edge pair will either be pointing x or y
+console.log('facetString')
+console.log(facetString)
+switch(facetString){
+  case 'rg': 
+  case 'gr':
+// red/green edge
+naturalVerticalIndex = 0
+  break;
+  case 'rb':
+  case 'br':
+// red/blue edge
+naturalVerticalIndex = 3
+  break;
+  case 'ob':
+  case 'bo':
+ //  orange-blue edge
+ naturalVerticalIndex = 2
+  break;
+  default: // orange-green edge
   naturalVerticalIndex = 1
 }
-
-
-
-
 
 // if/else the sum of current corner index minus natural vertical index
 let rotationCalc = naturalVerticalIndex - cornerIndex
 console.log('rotations calculation')
 console.log(rotationCalc)
 if( rotationCalc >= 0){
-  rotationsToNaturalIndex = rotationCalc
+  rotationsToVI = rotationCalc
 
 }else{
-  rotationsToNaturalIndex = rotationCalc + 4
+  rotationsToVI = rotationCalc + 4
 }
 
 
-// use the rotationsToNaturalIndex value to forward rotate the up layer so that the corner F2L piece sits in the correct place for solving. 
+// use the rotationsToVI value to forward rotate the up layer so that the corner F2L piece sits in the correct place for solving. 
 setTimeout(() => {
-  switch(rotationsToNaturalIndex){
+  switch(rotationsToVI){
 case 0:
   console.log('F2L corner is in the correct position')
 break;
@@ -3521,7 +3711,7 @@ setTimeout(() => {
 
   console.log('pairObj')
   console.log(pairObj)
-  // IF CONDITION for determining direction of F2L corner/edge piece in relation to the face which ahs the same index as the natural index. . 
+  // IF CONDITION for determining direction of F2L corner/edge piece. 
 switch(cornerIndex){
   case 0:
     if(edgeIndex === 0){
@@ -3554,7 +3744,7 @@ if(edgeIndex === 3){
 }
 
 
-  // check which axis the white facet is is orthagonal to; Imagine the axis pointing through the facet from front to back. . 
+  // use if/else condition on the elements of the corner/edge F2L piece to check which facet is white
   if(corner[1] == 'w'){ // if white is on back or front face
     whiteAxis = 'y'
     if(corner[0] == edge[0]){ // colours match on the UP face
@@ -3581,7 +3771,7 @@ solvedEdge = true // matching edges
   }
 
   // the information needed for the final solve of F2L corner/edge pairs is: axis of white, the solvedEdge boolean, the natural vertical index of the F2L corner/edge pair, and the orientation of the piece with respect to the face that shares the same index as the natural index. 
-  generateF2LPairAlgorithm(whiteAxis, solvedEdge, naturalVerticalIndex, isParallelToFace, pairObj)
+  solveAlgorithms(whiteAxis, solvedEdge, naturalVerticalIndex, isParallelToFace, pairObj)
 
 }, 3000);
 
@@ -3595,10 +3785,7 @@ solvedEdge = true // matching edges
 let solvedF2LPairsArray = []
 // this holds just the indexes of the solved F2L edges. 
 let solvedF2LIndexesArray = []
-
-
-// FUNCTION FOR GENERATING ALGORITHMS TO SOLVE THE CURRENT JOINED PAIR
-function generateF2LPairAlgorithm(axisOfWhite, solvedEdge, naturalPosition, parallelToFace, pairObject){
+function solveAlgorithms(axisOfWhite, solvedEdge, naturalPosition, parallelToFace, pairObject){
 //function for the actual moves. 
 setTimeout(() => {
   console.log('white axis')
@@ -3882,29 +4069,15 @@ solvedF2LPairsArray.push(pairObject)
 // push the index of the solved vertical edge
 solvedF2LIndexesArray.push(naturalPosition)
 
-let algorithmDuration = algorithmArray.length*1500 + 1500
-
 setTimeout(() => {
-  algorithmExecution(algorithmArray)   
+  algorithmExecution(algorithmArray, 'F2L_solve')   
 }, 500);
 
 
 
 
 
-
-setTimeout(() => {
-// here we decide what to do once the algorithm is complete. If solved edges are less than 4 execute the function again
-console.log('solved pieces')
-console.log(solvedF2LIndexesArray.length)
-if(solvedF2LIndexesArray.length < 4){
-  findF2LcornersFirstLayer(solvedF2LIndexesArray)
-}
-}, algorithmDuration);
-// I think the agorithm execution function should be reserved for exclusively executing the rotations on the cube, and the decisions about what to do next should come from here within the solve algorithms
-
-
-}, 1000);
+}, 5000);
   }
   
 
@@ -3998,8 +4171,6 @@ case 'B2':
   rotationName = 'back double rotate'
   backRotate('b2-btnless', 'double')
 break;
-case 'N/A':
-  console.log('null move')
     }
       console.log(rotationName)
     }, index*1500);
@@ -4011,6 +4182,32 @@ case 'N/A':
 
 setTimeout(() => {
   console.log('algorithm complete')
+  let solvedF2LPieces = solvedF2LIndexesArray.length
+  // if this is an F2L solve, 
+  if(stage =='F2L_solve'){
+    // check if less than 4 pieces are solved
+    if(solvedF2LPieces < 3){
+      console.log('number of solved pieces')
+      console.log(solvedF2LPieces)
+      // then execute a search for the next pair
+      console.log('finding the next corner piece for F2L')
+      findF2LcornersFirstLayer(solvedF2LIndexesArray)
+    }else{
+      console.log('F2L stage is complete; initiating OLL stage.... ')
+      console.log(solvedF2LPieces)
+      console.log('solvedF2LPairsArray')
+      console.log(solvedF2LPairsArray)
+    }
+  }
+  else if(stage == 'F2L_moves'){
+console.log('F2L in progress')
+
+  }else if(stage == 'scramble'){
+    console.log('cube scrambled')
+ 
+     }else{
+    console.log('coding in progress...')
+  }
 }, totalAlgorithmTime);
 
 

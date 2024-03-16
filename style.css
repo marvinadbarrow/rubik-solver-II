@@ -18,6 +18,7 @@
 .moves-para{font-size: 50px;}
 .face-div{width: 165px;}
 .algorithm-modal-container{
+    
     width: 26%;
     min-height: 12%;
     position: absolute;
@@ -26,7 +27,7 @@
     background-color:yellow;
     border: black 3px solid;
     border-radius: 15px;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     padding: 10px 0px;
