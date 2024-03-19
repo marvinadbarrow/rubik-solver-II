@@ -13,7 +13,12 @@
     padding: 8px;
 }
 
-.face-rotate-btn, .face-rotate-prime-btn, .cube-rotate-btn, .cube-rotate-prime-btn, .face-double-rotate-btn{width: 50px;  height: 50px; font-weight: bold;}
+#inv-btn{
+    width: 33px;
+    height: 33px;
+}
+
+.face-rotate-btn, .face-rotate-prime-btn, .cube-rotate-btn, .cube-rotate-prime-btn, .face-double-rotate-btn, .f2l-btn{width: 50px;  height: 50px; font-weight: bold;}
 .cube-state-btn{width: 150px; height: 50px; font-weight: bold; font-size: 18px;}
 .moves-para{font-size: 50px;}
 .face-div{width: 165px;}

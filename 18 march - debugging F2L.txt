@@ -18,10 +18,6 @@ let cubeRotatePrimeBtns = document.querySelectorAll('.cube-rotate-prime-btn')
 // buttons for double rotations
 let doubleFaceRotationBtns = document.querySelectorAll('.face-double-rotate-btn')
 
-let F2Lbtns = document.querySelectorAll('.f2l-btn')
-
-
-
   //  listener for buttons executing DEFAULT face rotations
   faceRotateBtns.forEach(button =>{
 button.addEventListener('click', event =>{
@@ -1095,88 +1091,18 @@ let newBackPrime = [
 }}
 
 
-
-
-// VARIABLES FOR MOVES TO USE IN ARRAY
-let R = 'R'
-let L = 'L'
-let F = 'F'
-let B = 'B'
-let U = 'U'
-let D = 'D'
-let RP = 'R`'
-let LP = 'L`'
-let FP = 'F`'
-let BP = 'B`'
-let UP = 'U`'
-let DP = 'D`'
-let R2 = 'R2'
-let L2 = 'L2'
-let F2 = 'F2'
-let B2 = 'B2'
-let U2 = 'U2'
-let D2 = 'D2'
-
-// F2L only scrambles
-let xppf = [R, U, RP, U2, R, U2, RP, UP, R, U, RP]
-let xppt = [FP, U, F, U2, R, U, RP]
-let yppf = [FP, U, F, UP, R, U2, RP, U]
-let yppt = [F, RP, FP, R]
-let zppf = [R, UP, RP, U, R, U2, RP]
-let zppt = [R, U, RP, F, R, U, RP, UP, FP]
-let inv = [RP, F, R, F2, UP, F, U]
-
 // test scrambles
-let scramble1 = [F,L,R2,B,U]
-let scramble2 = [B2,L,BP,LP,B2,LP]
-let scramble3 = [D2,FP,D,U2,L,RP]
-let scramble4 = [R,F2,U,FP,B2,LP,BP,R2,U,BP]
-
-// lister for F2L-only scramble buttons
-F2Lbtns.forEach(button =>{
-  button.addEventListener('click', event =>{
-    f2lScramble(event.target.id)
-  })
-  })
-
-// test scrambles for F2L only solves
-function f2lScramble(id){
-  console.log('id')
-  console.log(id)
-switch(id){
-case 'xppf':
-  algorithmExecution(xppf)
-break;
-case 'xppt':
-    algorithmExecution(xppt)
-break;
-case 'yppf':
-    algorithmExecution(yppf)
-break;
-case 'yppt':
-    algorithmExecution(yppt)
-break;
-case 'zppf':
-    algorithmExecution(zppf)
-break;
-case 'zppt':
-    algorithmExecution(zppt)
-break;
-case 'inv-btn':
-  algorithmExecution(inv)
-  break;
-}
-}
-
-
-
+let scramble1 = ['F', 'L', 'R2', 'B', 'U']
+let scramble2 = ['B2', 'L', 'B`', 'L`', 'B2', 'L`']
+let scramble3 = ['D2', 'F`', 'D', 'U2', 'L', 'R`']
+let scramble4 = ['R', 'F2', 'U', 'F`', 'B2', 'L`', 'B`', 'R2`', 'U', 'B`']
 const changeCubeState = (clickedButton) =>{
   let stateButton = clickedButton
   
   switch(stateButton){
     case 'scramble': console.log('scrambling cube.....')
     
-    algorithmExecution(scramble2)
+    algorithmExecution(scramble4)
     break;
     case 'solve': console.log('solving cube...')
     // reset the number of moves in the output so you can see the number of moves it takes to solve 
@@ -3347,13 +3273,12 @@ let thirdMove;
 let lastDownMove;
 
 // four rotations are required to join the pieces
-let firstMove; // place edge piece
+let moveOne; // place edge piece
 let moveTwo = '' // rotate side face to bring corner up to last layer
-let moveThree = '' // join the pieces
+let moveThree = 'U`' // join the pieces
 let moveFour = '' // undo move two
 let moveFive = ''
 let moveSix = ''
-let lastMove
 let algoArray = []
 
     // for determining how to rotate an F2L pair on a specific vertical edge up to the the last layer, use the index of the vertical edge as a guide; if the vertical index is 'x', then a clockwise rotation of the face at index 'x + 1' will move the F2L pair into the last layer.  then, the last layer will rotate or prime rotate depending on the orientation of of the F2L pair.  If the pair was a layer 1/2 pair then a clockwise rotation of the last layer is needed, otherwise if the pair was a layer 2/3 pair, it is inverted, so a last layer prime rotation is required.  The orientation is already given in the case that determines how a pair is joined. 
@@ -3370,63 +3295,60 @@ let edgeIndex = F2LPair['edge_details']['edge_index']
 
         switch(rotateValue){
           case 0:
-            firstMove = 'N/A'
-            lastMove = 'N/A'
+            firstMoveDown = 'N/A'
+            lastDownMove = 'N/A'
             break;
           case 1: 
           // downRotate('d-btn')
-          firstMove = 'D'
-          lastMove = 'D`'
+          firstMoveDown = 'D'
+          lastDownMove = 'D`'
             break;
             case 2: 
             // downRotate('d2-btnless', 'double')
-            firstMove = 'D2'
-            lastMove = 'D2'
+            firstMoveDown = 'D2'
+            lastDownMove = 'D2'
               break;
               case 3:
               //  downRotate('d-prime-btn')
-               firstMove = 'D`'
-               lastMove = 'D'
+               firstMoveDown = 'D`'
+               lastDownMove = 'D'
                 break
                 // whichever rotation is used will need to be reversed once the pair is joined and moved to the last layer
         }
  
       // HERE WE NEED TO EXECUTE MOVES TO GET THE F2L PAIR OUT OF THE WAY UP INTO THE LAST LAYER, AND IN ORDER THAT THE DOWN LAYER CAN BE RESET TO THE SOLVED POSITION.   This depends on the exact position of the piece which will have to be switched; 
       setTimeout(() => {
-        algoArray = []
+        let tempAlgArray = []
 //    SWITCH THE VERTICAL INDEX OF THE EDGE
         switch(edgeIndex){
 
           case 0:
-moveTwo = 'L' 
- moveThree = 'U'
- moveFour = 'L`'
+            tempAlgArray = [firstMoveDown,'L','U', 'L`', lastDownMove]
+        algorithmExecution(tempAlgArray, 'F2L')
             console.log('UPRIGHT F2L PAIR MOVED FROM BACK-LEFT EDGE TO LAYER 3')
 
-    break;
-    case 1:
-      moveTwo = 'F' 
-      moveThree = 'U'
-      moveFour = 'F`'
-      console.log('UPRIGHT F2L PAIR MOVED FROM FRONT-LEFT EDGE TO LAYER 3')
 
-        break;
-        case 2:
-          moveTwo = 'R' 
-          moveThree = 'U'
-          moveFour = 'R`'
-          console.log('UPRIGHT F2L PAIR MOVED FROM FRONT-RIGHT EDGE TO LAYER 3')
+            break;
+            case 1:
+              tempAlgArray = [firstMoveDown,'F','U', 'F`', lastDownMove]
+              algorithmExecution(tempAlgArray, 'F2L')
+              console.log(tempAlgArray)
+              console.log('UPRIGHT F2L PAIR MOVED FROM FRONT-LEFT EDGE TO LAYER 3')
+
+              break;
+              case 2:
+                tempAlgArray = [firstMoveDown,'R','U', 'R`', lastDownMove]
+                algorithmExecution(tempAlgArray, 'F2L')
+                console.log('UPRIGHT F2L PAIR MOVED FROM FRONT-RIGHT EDGE TO LAYER 3')
+
 
                 break;
                 default: // vertical edge index is 3
-                moveTwo = 'B' 
-                moveThree = 'U'
-                moveFour = 'B`'
+                tempAlgArray = [firstMoveDown,'B','U', 'B`', lastDownMove]
+                algorithmExecution(tempAlgArray, 'F2L')
+
                 console.log('UPRIGHT F2L PAIR MOVED FROM BACK-RIGHT EDGE TO LAYER 3')
         }
-
-        algoArray = [firstMove, moveTwo, moveThree, moveFour, lastMove]
-        algorithmExecution(algoArray, 'F2L')
       }, 2600);
 
      // UNDO DOWN LAYER MOVEMENTS
@@ -3445,7 +3367,7 @@ setTimeout(() => {
   upLayerCorners.forEach((upCorner, upIndexCorner) =>{
     console.log('logging each F2L corner to see that we have the correct orientation')
     console.log(upCorner)
-    // IF THE CHECKED CORNER HAS THE SAME TWO COLOUR FACETS AS THE F2L EDGE and has a white facet
+    // IF THE CHECKED CORNER HAS THE SAME TWO COLOUR FACETS AS THE F2L EDGE
     if(upCorner.includes(F2LPair['edge_details']['matching_edge'][0]) && upCorner.includes(F2LPair['edge_details']['matching_edge'][1]) && upCorner.includes('w') ){
       // grab the corner in its new position
      F2LCorner = upLayerCorners[upIndexCorner]
@@ -3527,20 +3449,24 @@ if(distanceToEdgeDestination < 0){
 }else{rotateValueToEdgeDestination = distanceToEdgeDestination}
 
 // four rotations are required to join the pieces
-moveThree = 'U`' // join the pieces
+let moveOne; // place edge piece
+let moveTwo = '' // rotate side face to bring corner up to last layer
+let moveThree = 'U`' // join the pieces
+let moveFour = '' // undo move two
+let algoArray = []
 
 // DETERMINES UP LAYER ROTATIONS TO POSITION EDGE PIECE
 switch(rotateValueToEdgeDestination){
-  case 1: firstMove = 'U`'
+  case 1: moveOne = 'U`'
     break;
-    case 2: firstMove = 'U2'
+    case 2: moveOne = 'U2'
       break;
-      case 3: firstMove = 'U'
+      case 3: moveOne = 'U'
         break
         default:
           console.log('edge piece already in position')
         // whichever rotation is used will need to be reversed once the pair is joined and moved to the last layer
-        firstMove = 'N/A'
+        moveOne = 'N/A'
 }
 
 
@@ -3564,13 +3490,13 @@ moveFour = 'B`'
 }
 
 console.log(`
-move one: ${firstMove}
+move one: ${moveOne}
 move two: ${moveTwo}
 move three: ${moveThree}
 move four: ${moveFour}
 `)
 
-algoArray = [firstMove, moveTwo, moveThree, moveFour]
+algoArray = [moveOne, moveTwo, moveThree, moveFour]
 console.log('algorithm array')
 console.log(algoArray)
 // position the F2L pair on the last layer at the vertical index where it sits naturally when solved
@@ -3619,44 +3545,48 @@ console.log(F2LPair)
 
 
 //       // five rotations are required to join the pieces and to get them to the solve position
- 
- moveThree = 'U`' // join the pieces
- moveFive = 'U2' // place corner piece back to initial vertical index
-
+      let moveOneLayers23; // place edge piece
+      let moveTwoLayers23 = '' // rotate side face to bring corner up to last layer
+      let moveThreeLayers23 = 'U`' // join the pieces
+      let moveFourLayers23 = '' // undo move two
+      let moveFiveLayers23 = 'U2' // place corner piece back to initial vertical index
+      let algoArrayLayers23 = []
 // note that by returning the corner piece to the vertical index position it occupied prior to joining the two pieces, this will cause the edge piece to be at the last layer edge index position, that has the same value as the mid layer index position occupied by the edge prior to being moved.  So the two indexes, corner and edge index, remain the same after the join.  The only difference is that the edge piece is on the last layer now, but with the same index position it had on the mid layer.  So we don't have to search for the two idexes.  
 
 // the first move is how much the up layer must move to get the corner piece to sit above the edge piece.  That is already calculated above, so switch the distance and then assign the rotation to the moveOneLayers23 variable
 if(rotationsToEdge === 0){
-  firstMove = 'N/A'
+  moveOneLayers23 = 'N/A'
 }else if(rotationsToEdge === 1){
-  firstMove = 'U`'
+  moveOneLayers23 = 'U`'
 }else if(rotationsToEdge === 2){
-   firstMove = 'U2'
+   moveOneLayers23 = 'U2'
 }else{
 // three rotations are required so use U prime
-firstMove = 'U'
+moveOneLayers23 = 'U'
 }
+
+
 
 
 // DETERMINES SIDE-FACE TO ROTATE CLOCKWISE
 if(midLayerEdgeIndex === 0){
-moveTwo = 'L';
-  moveFour = 'L`'
+  moveTwoLayers23 = 'L';
+  moveFourLayers23 = 'L`'
 }else if(midLayerEdgeIndex === 1){
-moveTwo = 'F';
-  moveFour = 'F`'
+  moveTwoLayers23 = 'F';
+  moveFourLayers23 = 'F`'
 }else if(midLayerEdgeIndex === 2){
-moveTwo = 'R';
-  moveFour = 'R`'
+  moveTwoLayers23 = 'R';
+  moveFourLayers23 = 'R`'
 }else{
-moveTwo = 'B';
-  moveFour = 'B`'
+  moveTwoLayers23 = 'B';
+  moveFourLayers23 = 'B`'
 }
 
-algoArray = [firstMove, moveTwo, moveThree, moveFour, moveFive]
+algoArrayLayers23 = [moveOneLayers23, moveTwoLayers23, moveThreeLayers23, moveFourLayers23, moveFiveLayers23]
 
 console.log('array with move details for joining the pair')
-console.log(algoArray)
+console.log(algoArrayLayers23)
 
 console.log(
   `
@@ -3667,7 +3597,7 @@ console.log(
 console.log('pair details')
 console.log(F2LPair)
 // position the F2L pair on the last layer at the vertical index where it sits naturally when solved
-algorithmExecution(algoArray)
+algorithmExecution(algoArrayLayers23)
 
 
 // the algorithm will take 7.5 seconds to execute, so after it is complete, the next step, solving and placing the pair, can run. Get indexes of both corner and edge, and send them along with the corner and edge pieces to the solve F2L pair function 
@@ -3716,15 +3646,10 @@ setTimeout(() => {
     }
       )
 
-// check to see if the pieces paired, prior to solving
-console.log('check to see if the pieces paired, prior to solving')
-        console.log('new corner index')
-        console.log(newCornerIndex)
-        console.log('new edge index')
-        console.log(newEdgeIndex)
-        console.log(F2LEdge)
-        console.log(F2LCorner)
-
+     
+ console.log('checking parameters for solving pair function')
+console.log(F2LCorner)
+console.log(F2LEdge)
   solveF2LPair(F2LCorner, F2LEdge, newCornerIndex, newEdgeIndex)
 }, 9000);
 
@@ -3748,235 +3673,97 @@ console.log('check to see if the pieces paired, prior to solving')
       CORNER: layer 3
       both pieces are already on last layer, find the natural index of the corner piece, rotate it to the vertical edge that is one index position clockwise of the natural vertical edge of the corner; forward rotate the face that has the same index as the natural verdical edge index of the corner piece, then rotate the up layer until the edge piece sits at the edge which has the same index of the corner that is clockwise to the natural corner index.  Undo the face rotate with a face prime, U rotate to get the corner back to its natural vertical index.  The edge piece will share the same index as the corner, but it will be the index of the piece as it sits in upLayer edges. `)
 
-      console.log('checking F2L pair at the beginning of LAYER 3/3 switch')
-      console.log(F2LPair)
-      let upLayerEdgeIndex = F2LPair['edge_details']['edge_index']
-      let cornerIndex = F2LPair['corner_details']['main_details']['vertical_index']
-      let naturalCornerIndex;
-      let F2LEdge = F2LPair['edge_details']['matching_edge']
-      // variable for rotating separated pair to the natural index from where they will be joined.  This is the best place for it to happen because it is easiest to calculate the algorithm from that position. 
-      let rotationsToNaturalIndex; 
-      let rotationCalc
 
-// the number of moves will dictate how long the set time out waits before it the code for getting the moved corner and edge pieces from their new positions; for sending to the solving function
-let numberOfMoves;
+      let upLayerEdgeIndex = F2LPair['edge_details']['edge_index']
+      let edges = F2LPair['edge_details']['matching_edge'] 
+      let cornerIndex = F2LPair['corner_details']['main_details']['vertical_index']
+      let cornerNaturalIndex;
+      let layer3Rotation;
+
+// get natural index of corner by examining the two edge facet colors
+if(edges[0].includes('r') && edges[0].includes('g')){
+  cornerNaturalIndex = 0;
+}else if(edges[0].includes('o') && edges[0].includes('g')){
+  cornerNaturalIndex = 1;
+}else if(edges[0].includes('o') && edges[0].includes('b')){
+  cornerNaturalIndex = 2;
+}else{
+  cornerNaturalIndex = 3;
+}
+
+
+let distanceToNaturalIndex = cornerNaturalIndex - cornerIndex;
+let edgeToNaturalPlusOne = cornerNaturalIndex - upLayerEdgeIndex + 1;
+
+// correction for negative numbers
+if(distanceToNaturalIndex < 0){
+layer3Rotation = distanceToNaturalIndex + 4
+}else{layer3Rotation = distanceToNaturalIndex}
+
+
+
+let joinMove;
+let moveLayer3Two;
+let moveLayer3Three;
+let moveLayer3Four;
+let moveLayer3Five;
+
+let 
+// rotation that moves the corner piece to natural vertical index; 
+if(layer3Rotation === 0){
+joinMove = 'N/A'
+}else if(layer3Rotation === 1){
+joinMove = 'U`'
+}else if(layer3Rotation === 2){
+joinMove = 'U2'
+}else{ // layer rotation = 3
+joinMove = 'U'
+}
+
+
 // check if the pair is already joined. 
 if(upLayerEdgeIndex === cornerIndex || upLayerEdgeIndex === (cornerIndex + 1)%4){
 // edgeIndex = cornerIndex, or edgeIndex = (cornerIndex + 1)%4, so the pieces are already joined
-console.log('pair already joined')
-console.log('double check F2L edge, edge index and corner index')
-console.log(F2LEdge)
-console.log(upLayerEdgeIndex)
-console.log(cornerIndex)
-
-// NOTE: if this joined pair is not in the correct position for solving, it will be translated to the correct postion by the solveF2LPair function. 
-solveF2LPair('n/a', F2LEdge, cornerIndex, 'n/a' )
-
-
   // two other possibilities exist
 }else{
-console.log('pair is not joined... joining pair')
-      // IMPORTANT.  the following two algorithms should be executed with the corner piece already at its natural index, otherwise they will scramble the pair over which the corner sits; move the corner to its natural vertical index first. Although this translation of the F2L piece to the corner's natural index is performed in the next function, it is essential that it be performed for the following two solutions.  In the next function, the pair will be treated as any other pair that is already in the solve-ready position. 
-    
-
-  console.log('checking F2L edge')
-console.log(F2LEdge)
-      if(F2LEdge.includes('r') && F2LEdge.includes('g')){
-        console.log('edge includes red and green')
-        naturalCornerIndex = 0
-      }else if(F2LEdge.includes('r') && F2LEdge.includes('b')){
-        console.log('edge includes red and blue')
-        naturalCornerIndex = 3
-      }else if(F2LEdge.includes('o') && F2LEdge.includes('b')){
-        console.log('edge includes orange and blue')
-        naturalCornerIndex = 2
-      }else{// the two colors must be orrange and green which vertical index '1' lies between
-        console.log('edge includes orange and green')
-        naturalCornerIndex = 1
-      }
-
-
-      //  NOTE; as a convention ALWAYS subtract the index of the piece that is to be moved. 
-// if/else the sum of current corner index minus natural vertical index
-rotationCalc = naturalCornerIndex - cornerIndex
-console.log('natural corner index')
-console.log(naturalCornerIndex)
-console.log('cornerIndex')
-console.log(cornerIndex)
-console.log('checking original rotation calculation')
-console.log(rotationCalc)
-if( rotationCalc === 0 || rotationCalc > 0){
-  rotationsToNaturalIndex = rotationCalc
-
-}else{
-  rotationsToNaturalIndex = rotationCalc + 4
-}
-console.log('distance to rotate')
-console.log(rotationsToNaturalIndex)
-
-
-// variable for rotation name
-let setupMove;
-// use the rotationsToNaturalIndex value to forward rotate the up layer so that the corner F2L piece sits in the correct place for solving. 
-
-
-  switch(rotationsToNaturalIndex){
-case 0:
-  setupMove = 'N/A';
-break;
-case 1:
-  setupMove = 'U`'
-  console.log('single last layer U` rotation to move F2L piece')
-  break;
-case 2:
-  setupMove = 'U2'
-  console.log('double last layer rotation to move F2L piece')
-  break;
-  default: // 3 rotations required, but a single prime rotation will get the same result. 
-  setupMove = 'U'
-  console.log('prime last layer rotation to move F2L piece')
-  }
-
-
-
-// ------------------------------- NOW CHECK WHICH ALGORITHM WILL JOIN THE PAIR
 
   if(Math.abs(upLayerEdgeIndex - cornerIndex === 2)){
-
-console.log('edge is two in front of corner')
       // edgeIndex - cornerIndex has an absolute value of 2; 
 // the edge is two ahead of/ or behind the corner; forward rotate the side-face that has the index (corner index + 1)%4, U prime rotate, then undo the side face rotation
 
 
-// NOTE; these moves also have to be executed from the corner natural vertical index, not the incoming corner index (unless of course, the incoming corner is already at its natural vertical index)
-
-if(naturalCornerIndex === 0){
-firstMove = 'L'
-secondMove = 'U`'
-thirdMove = 'L`'
-}else if(naturalCornerIndex === 1){
-  firstMove = 'F'
-  secondMove = 'U`'
-  thirdMove = 'F`'
-  }else if(naturalCornerIndex === 2){
-    firstMove = 'R'
-    secondMove = 'U`'
-    thirdMove = 'R`'
-    }else{ // naturalCornerIndex === 3
-      firstMove = 'B'
-      secondMove = 'U`'
-      thirdMove = 'B`'
-    }
-
   }else{
-    //  edgeIndex - naturalCornerIndex = -1,  (or 3). This will be the default if the other conditions fail
-// the edge is three ahead of the corner; if sideFace index = naturalCornerIndex, prime rotate the side-face,  followed with a 'U' move, then undo the side face rotation
-console.log('edge is three in front of corner')
-
-if(naturalCornerIndex === 0){
-  firstMove = 'B`'
-  secondMove = 'U'
-  thirdMove = 'B'
-  }else if(naturalCornerIndex === 1){
-    thirdMove = 'L`'
-    secondMove = 'U'
-    firstMove = 'L'
-
-    }else if(naturalCornerIndex === 2){
-      firstMove = 'F`'
-      secondMove = 'U'
-      thirdMove = 'F'
-
-      }else{ // naturalCornerIndex === 3
-        firstMove = 'R`'
-        secondMove = 'U'
-        thirdMove = 'R'
-      }
-  
+    //  edgeIndex - cornerIndex = -1,  (or 3). This will be the default if the other conditions fail
+// the edge is three ahead of the corner; if sideFace index = cornerIndex, prime rotate the side-face,  followed with a 'U' move, then undo the side face rotation
   }
 
-  algoArray = [setupMove, firstMove, secondMove, thirdMove]
-console.log('algorithm array for layer 3/3 F2L pair')
-console.log(algoArray)
-
-
-
-numberOfMoves = algoArray.length + 2
-
-algorithmExecution(algoArray)
-
-
-
-
-   // after the pairing, do lastMoveToJoin so the corner piece sits at its natural vertical index, ready for the solve
-
-    // UPDATE CORNER/EDGE INFO  - for solve
-  // get new positions of corner and edge pieces so they can be sent to the solve function
-  setTimeout(() => {
-    console.log('layer3/3 F2L positioned for solving')
-    let NewF2LEdge;
-    let newCornerIndex;
-    let newF2LCorner;
-    let newF2LEdgeIndex;
-    // get corner from new position
-    upLayerCorners.forEach((upCorner, upIndexCorner) =>{
-      console.log('logging each F2L corner to see that we have the correct orientation')
-      console.log(upCorner)
-      console.log('logging each F2L corner index')
-      console.log(upIndexCorner)
-      // IF THE CHECKED CORNER HAS THE SAME TWO COLOUR FACETS AS THE F2L EDGE and has a white facet
-      if(upCorner.includes(F2LPair['edge_details']['matching_edge'][0]) && upCorner.includes(F2LPair['edge_details']['matching_edge'][1]) && upCorner.includes('w') ){
-       // get the corner's new vertical edge index (same as the corner index)
-       newCornerIndex = upIndexCorner
-       newF2LCorner = upCorner
-       
-      }
-    }
-      )
-
-      // get the edge array from its new position
-      upLayerEdges.forEach((upEdge, upIndexEdge) =>{
-        // if the examined edge has the same two facets as the F2L EDGE
-        if(upEdge.includes(F2LPair['edge_details']['matching_edge'][0]) && upEdge.includes(F2LPair['edge_details']['matching_edge'][1]) ){
-          newF2LEdgeIndex = upIndexEdge
-          console.log('checking up edges in loop')
-          console.log(upEdge)
-
-          // grab the new edge
-          NewF2LEdge = upLayerEdges[upIndexEdge]
-          newF2LEdgeIndex = upIndexEdge
-          console.log('NewF2LEdge')
-          console.log(NewF2LEdge)
-          console.log('newF2LEdgeIndex')
-          console.log(newF2LEdgeIndex)
-        }
-      }
-        )
-// check to see if the pieces paired, prior to solving
-console.log('check to see if the pieces paired, prior to solving')
-        console.log('new corner index')
-        console.log(newCornerIndex)
-        console.log('new edge index')
-        console.log(newF2LEdgeIndex)
-        console.log(F2LEdge)
-        console.log(newF2LCorner)
-
-        solveF2LPair('n/a', F2LEdge, newCornerIndex, 'n/a' )
-
-        // if(solvedF2LIndexesArray.length < 5){
-        //   solveF2LPair('n/a', F2LEdge, newCornerIndex, 'n/a' )
-        // }
-
-  }, numberOfMoves*1500);
 
 
 }
 
- 
-    }// END OF DEFAULT SWITCH OPTION
+  // after the pairing, do lastMoveToJoin so the corner piece sits at its natural vertical index, ready for teh solve
+    }
+      
+
+
+
+
+// CHECK THE ORIENTATION OF THE WHITE PIECE FIRST OF ALL
+// corner facets don't need examination until 'AFTER' both pieces have been moved to the last layer
+// if(comparisonObj['corner_facets']['alpha'] == 'w'){
+// }else if(comparisonObj['corner_facets']['beta'] == 'w'){
+// }else{// the white facet must be on the top or bottom of the corner piece
+// }
 
 
 }, 2000);
+
+// I think from here it might be worth sending both the corner and edge colours as arrays to the function which will solve the F2L pair on the last layer. Figure out how to categorize a pair and then execute the appropriate algorithm. 
+
+// RESULTANT CORNER POSITION - When moving an upright F2L pair to L3 (which can only happen on L1/L2 pairs), it's easy to show where the corner piece lands. Take the face which has the same index number as the vertical index at which the corner originally was situated, perform a clockwise rotation on the face, and then a clockwise rotation on the last layer.  This will cause the corner piece index position to decrement by 1. So, if the index of the corner piece on the down layer was 'x', then  the corner piece details, after its move to L3, can be found at uplayerArray[x-1]
+
+// NATURAL INDEX OF F2L PAIR - the natural vertical edge index of the F2L pair is where the corner piece needs to sit in order for the insertion of the solved pair to be in the correct place. This also prevents pairs being inserted into the wrong vertical edge, which would require them to be removed afterward; requiring additional, unneccessary moves.   The two facets on an edge-piece of an F2L pair are unique to one of the four vertical edges; each colour facet pair on an F2L edge piece, i.e. B/R, G/R, B/O or G/0, sits naturally at the vertical index 3, 0, 2 and 1 respectively.   Assigning each color pair its natural index, they can be compared to the current F2L pair edge piece facets, which will give the natural index of the F2L pair, (technically the corner piece could also be used for comparison); applying a difference calculation to the corner index and the edge natural vertical index will reveal how far the last layer needs to turn in order for the corner piece to be sitting at the correct vertical edge index for the solve and insertion of the piece to solve into its natural position on the cube. 
+
 
 }
 
@@ -4064,6 +3851,7 @@ setTimeout(() => {
   // THE CORNER INDEX AFTER TRANSLATION IS THE NATURAL VERTICAL INDEX - ALSO, a rotation of the corner, if a single or prime rotation, i.e. the corner piece moves to an adjacent corner, the order of the colours in the corner array wil change; for example, if a corner piece is white, blue and orange, with white on facing up, at corner index '1', the orange facet will be on the '2' index face, facing the solver, and so will have the y-axis value, which is the second element of the array. But if a U prime rotation occurs, then the piece will be at corner index '2', and the orange facet will now be facing away from the solver (to the left), on the '3' index face, and will have the x-axis value, which is the third element in the array.  So the array elements are arranged differently on adjacent corners; on corner index '1' the array is [w, o, b], but on corner index '2' the array is [w, b, o].  Getting these wrong will cause the matched boolean value to be incorrect leading to the wrong algorithm to be selected for the solve.  So after the two pieces are joined and have been translated to the natural vertical index of the corner, the corner piece needs to be found again and its array details updated. Since the 'z' properties on the F2L edge piece don't change when the piece is translated by a rotation, its relationship to the F2L cross piece remains intact relatively speaking, so a swapped edge before translation remains a swapped edge after translation, but the corner array needs to have its elements rearranged so that a comparison of the elements across both arrays still gives the exact orientations of the pieces, relative to each other.  
 
 // for the correct algorithm to be detected, new edge details, natural vertical index and new corner details and index is needed. 
+
   let newCornerDetails;
   upLayerCorners.forEach((newCorner, newCornerIndex) =>{
     console.log('checking each corner for index and details')
@@ -4093,7 +3881,6 @@ setTimeout(() => {
     'index_of_edge': newEdgeIndex,
     'corner': newCornerDetails,
     'pair_orientation': '', 
-    'is_parallel': null,
     'axis_of_white': '',
     'solved_edge': '',
   }
@@ -4106,44 +3893,36 @@ switch(naturalVerticalIndex){
     if(newEdgeIndex === 0){
       isParallelToFace = true // to BACK face
       pairObj['pair_orientation'] = 'parallel to BACK face'
-      pairObj['is_parallel'] = true
     }else{
       isParallelToFace = false // to BACK face
       pairObj['pair_orientation'] = 'perpendicular to BACK face'
-      pairObj['is_parallel'] = false
     }
 break;
 case 1:
   if(newEdgeIndex === 1){
     isParallelToFace = true  // to LEFT face
     pairObj['pair_orientation'] = 'parallel to LEFT face'
-    pairObj['is_parallel'] = true
   }else{
     isParallelToFace = false // to LEFT face
     pairObj['pair_orientation'] = 'perpendicular to LEFT face'
-    pairObj['is_parallel'] = false
   }
 break;
 case 2:
   if(newEdgeIndex === 2){
     isParallelToFace = true // to FRONT face
     pairObj['pair_orientation'] = 'parallel to FRONT face'
-    pairObj['is_parallel'] = true
   }else{
     isParallelToFace = false // to FRONT face
     pairObj['pair_orientation'] = 'perpendicular to FRONT face'
-    pairObj['is_parallel'] = false
   }
 break;
 default: // index is 3
 if(newEdgeIndex === 3){
   isParallelToFace = true // to RIGHT face
   pairObj['pair_orientation'] = 'parallel to RIGHT face'
-  pairObj['is_parallel'] = true
 }else{
   isParallelToFace = false // to RIGHT face
   pairObj['pair_orientation'] = 'perpendicular to RIGHT face'
-  pairObj['is_parallel'] = false
 }
 
 }
@@ -4182,21 +3961,26 @@ pairObj['solved_edge'] = true // matching edges
          whiteAxis = 'z' 
          pairObj['axis_of_white'] = 'z'
 // if the face is PARALLEL
-
-
-         // trying a different approach - 
-         if(edgeZero == cornerOne && edgeOne == cornerTwo){
-if(isParallelToFace === true){
-  pairObj['solved_edge'] = false
-}else{
-pairObj['solved_edge'] = true
-}
-         }else if(edgeZero == cornerTwo && edgeOne == cornerOne){
-          if(isParallelToFace === true){
-          pairObj['solved_edge'] = true
-          }else{
+         if(isParallelToFace = true){
+          if(edgeZero == cornerOne  && edgeOne !== cornerTwo  ){ // white must be on UP face
+            console.log('edge 0 is corner 1 and edge 1 NOT corner 2')
+            solvedEdge = false //  matching edges
             pairObj['solved_edge'] = false
-          }
+                }else{
+                  solvedEdge = true
+                  pairObj['solved_edge'] = true
+                }
+         }else{
+          // face is PERPENDICULAR
+          if(edgeZero === cornerOne && edgeOne == cornerTwo){ // white must be on UP face
+            console.log('edge 0 is corner 1 and edge 1 is corner 2')
+            solvedEdge = true //  matching edges
+            pairObj['solved_edge'] = true
+                }else{
+       
+                  solvedEdge = false
+                  pairObj['solved_edge'] = false
+                }
          }
   }
 
@@ -4233,7 +4017,7 @@ function generateF2LPairAlgorithm(object){
   let solvedEdge = object['solved_edge'];
   let naturalPosition = object['index_of_corner'];
   let parallelToFace = object['pair_orientation'];
-  let  isParallelBoolean =  object['is_parallel']
+  
 //function for the actual moves. 
 setTimeout(() => {
   console.log('white axis')
@@ -4245,12 +4029,8 @@ setTimeout(() => {
   console.log('natural vertical index')
   console.log(naturalPosition)
   
-  console.log('direction:')
+  console.log('parallel to face:')
   console.log(parallelToFace)
- 
-  console.log('parallel to face')
-  console.log(isParallelBoolean)
-console.log
 
   console.log(object)
   
@@ -4273,7 +4053,7 @@ console.log
 
 if(axisOfWhite == 'x'){ // ====================================== axis of white is 'x'
 
-if(isParallelBoolean === true){ // PARALLEL 
+if(parallelToFace === true){ // PARALLEL 
 if(solvedEdge === true){
 // SWITCH CORNER INDEXES
 switch(naturalPosition){
@@ -4336,7 +4116,7 @@ if(solvedEdge === true){
 }
 }else if(axisOfWhite == 'y'){ // =============================== axis of white is 'y'
 
-if(isParallelBoolean === true){
+if(parallelToFace === true){
   if(solvedEdge === true){
     // SWITCH CORNER INDEXES
     switch(naturalPosition){
@@ -4356,12 +4136,12 @@ if(isParallelBoolean === true){
     switch(naturalPosition){
       case 0: algorithmArray = ['L', 'U`', 'L`', 'U2', 'B`', 'U', 'B', 'L', 'U2', 'L`']
         break;
-        case 1: algorithmArray = [F, UP, FP, U, F, UP, F, U2, F, UP, FP]
+        case 1: algorithmArray = ['L`', 'U', 'L', 'U2', 'L`', 'U', 'L', 'U`', 'F', 'U`', 'F`']
           break;
           case 2: algorithmArray = ['R', 'U`', 'R`', 'U2', 'F`', 'U', 'F', 'R', 'U2', 'R`']
             break;
     default: // vertical edge must be 3
-    algorithmArray = [B, UP, BP, U, B, UP, B, U2, B, UP, BP]
+    algorithmArray = ['R`', 'U', 'R', 'U2', 'R`', 'U', 'R', 'U`', 'B', 'U`', 'B`']
     }
     
     
@@ -4398,17 +4178,13 @@ if(isParallelBoolean === true){
       }
     }
 }else{ //  // ===============================axis of white is 'z'
-  if(isParallelBoolean === true){
+  if(parallelToFace === true){
     if(solvedEdge === true){
       // SWITCH CORNER INDEXES
-      console.log('natural position')
-      console.log(naturalPosition)
       switch(naturalPosition){
         case 0: algorithmArray = ['L`', 'U`', 'L', 'U`', 'L`', 'U2', 'L2', 'U2', 'L`']
-        console.log('this is the algorithm for corner 1')
           break;
           case 1: algorithmArray = ['F`', 'U`', 'F', 'U`', 'F`', 'U2', 'F2', 'U2', 'F`']
-          console.log('this is the algorithm for corner 1')
             break;
             case 2: algorithmArray = ['R`', 'U`', 'R', 'U`', 'R`', 'U2', 'R2', 'U2', 'R`']
               break;
@@ -4465,6 +4241,63 @@ if(isParallelBoolean === true){
     }
 }
 
+/**
+           case 2: algorithmArray = ['R', 'U2', 'R`', 'U`', 'R', 'U', 'R`']
+================ X facing white piece =============
+
+ White orientation: x
+ F2L orientation: parallel
+ Solved edge: true
+
+  White orientation: x
+ F2L orientation: parallel
+ Solved edge: false
+
+  White orientation: x
+ F2L orientation: perpendicular
+ Solved edge: true
+
+  White orientation: x
+ F2L orientation: perpendicular
+ Solved edge: false
+
+ ================ Y facing white piece =============
+
+ White orientation: y
+ F2L orientation: parallel
+ Solved edge: true
+
+  White orientation: y
+ F2L orientation: parallel
+ Solved edge: false
+
+  White orientation: y
+ F2L orientation: perpendicular
+ Solved edge: true
+
+  White orientation: y
+ F2L orientation: perpendicular
+ Solved edge: false
+
+  ================ Z facing white piece =============
+
+ White orientation: z
+ F2L orientation: parallel
+ Solved edge: true
+
+  White orientation: z
+ F2L orientation: parallel
+ Solved edge: false
+
+  White orientation: z
+ F2L orientation: perpendicular
+ Solved edge: true
+
+  White orientation: z
+ F2L orientation: perpendicular
+ Solved edge: false
+
+ */
 
 // push the object to solve array for debugging purposes
 solvedF2LPairsArray.push(object)
@@ -4500,9 +4333,10 @@ if(solvedF2LIndexesArray.length < 4){
   
 
 let executionArrayAll = []
-function algorithmExecution(array){
+function algorithmExecution(array, stage){
   console.log(array)
-  
+  console.log('stage')
+  console.log(stage)
   // create a variable for the total length of time the algorithm takes to complete, and add an extra 1.5 seconds at the end. This will be used in the settimeout that has the code for dictating which step is required after the algorithm is complete. The extra 1.5 seconds is to ensure there's a gap between the last step in the algorithm and the instructions for the next step in the stage, or for the next stage to be executed. 
 
   let totalAlgorithmTime = (array.length + 1)*1500
@@ -4590,7 +4424,6 @@ case 'B2':
 break;
 case 'N/A':
   console.log('null move')
-  rotationName = 'no rotation'
     }
       console.log(rotationName)
     }, index*1500);
