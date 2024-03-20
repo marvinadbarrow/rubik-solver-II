@@ -65,10 +65,14 @@ button.addEventListener('click', event =>{
 let faceElements = document.querySelectorAll('.face-element')
 faceElements.forEach(button =>{
   button.addEventListener('click', event =>{
-  
+  console.log(event.target)
 
   })
   })
+
+console.log(faceElements)
+
+
 // CHANGING CUBE STATE - RESET, SOLVE OR SCRAMBLE CUBE
   let cubeStateBtns = document.querySelectorAll('.cube-state-btn')
 
@@ -107,18 +111,26 @@ let cubeMatrixAlt = [
     ['b', 'b', 'b'],
   ],
 
-  // BACK
-  [
-    ['r', 'r', 'r'],
-    ['r', 'r', 'r'],
-    ['r', 'r', 'r'],
-  ], 
-
   // DOWN
   [
+
     ['w', 'w', 'w'],
     ['w', 'w', 'w'],
     ['w', 'w', 'w'],
+  ], 
+
+  // BACK
+  [
+
+    ['r', 'r', 'r'],
+    ['r', 'r', 'r'],
+    ['r', 'r', 'r'],
+
+
+
+
+
+    
   ], 
 ]
 
@@ -202,7 +214,7 @@ const renderCube = (cube, update, double, doubleFace) =>{
 cube.forEach((face, faceIndex) =>{
   // loop through the layer elements
   face.forEach((layer, indexOfLayer) =>{
-  
+
     layer.forEach((facet, indexOfFacet) =>{
   // create a div for each element (which represents a facet on the layer)
   let facetElement = document.createElement('div')
@@ -261,7 +273,7 @@ if(newConfig){
 
   // arrays recording edge pice positions
   upLayerEdges = [
-    [cubeMatrixAlt[0][0][1], cubeMatrixAlt[4][0][1]],// UP-BACK
+    [cubeMatrixAlt[0][0][1], cubeMatrixAlt[5][0][1]],// UP-BACK
     [cubeMatrixAlt[0][1][0], cubeMatrixAlt[1][0][1]], // UP-LEFT
     [cubeMatrixAlt[0][2][1], cubeMatrixAlt[2][0][1]], // UP-FRONT
     [cubeMatrixAlt[0][1][2], cubeMatrixAlt[3][0][1]] // UP-RIGHT
@@ -269,31 +281,31 @@ if(newConfig){
   
   midLayerEdges = [
 
-    [cubeMatrixAlt[4][1][2], cubeMatrixAlt[1][1][0]], // BACK-LEFT
+    [cubeMatrixAlt[5][1][2], cubeMatrixAlt[1][1][0]], // BACK-LEFT
     [cubeMatrixAlt[2][1][0], cubeMatrixAlt[1][1][2]], // FRONT-LEFT
     [cubeMatrixAlt[2][1][2], cubeMatrixAlt[3][1][0]], // FRONT-RIGHT
-    [cubeMatrixAlt[4][1][0], cubeMatrixAlt[3][1][2]] // BACK-RIGHT
+    [cubeMatrixAlt[5][1][0], cubeMatrixAlt[3][1][2]] // BACK-RIGHT
   ]
   
   downLayerEdges = [
-    [cubeMatrixAlt[5][2][1], cubeMatrixAlt[4][2][1]], // DOWN-BACK
-    [cubeMatrixAlt[5][1][0], cubeMatrixAlt[1][2][1]], // DOWN-LEFT
-    [cubeMatrixAlt[5][0][1], cubeMatrixAlt[2][2][1]], // DOWN-FRONT
-    [cubeMatrixAlt[5][1][2], cubeMatrixAlt[3][2][1]] // DOWN-RIGHT
+    [cubeMatrixAlt[4][2][1], cubeMatrixAlt[5][2][1]], // DOWN-BACK
+    [cubeMatrixAlt[4][1][0], cubeMatrixAlt[1][2][1]], // DOWN-LEFT
+    [cubeMatrixAlt[4][0][1], cubeMatrixAlt[2][2][1]], // DOWN-FRONT
+    [cubeMatrixAlt[4][1][2], cubeMatrixAlt[3][2][1]] // DOWN-RIGHT
   ]
  
 upLayerCorners = [
-  [cubeMatrixAlt[0][0][0], cubeMatrixAlt[4][0][2], cubeMatrixAlt[1][0][0]],// UP-BACK-LEFT
+  [cubeMatrixAlt[0][0][0], cubeMatrixAlt[5][0][2], cubeMatrixAlt[1][0][0]],// UP-BACK-LEFT
   [cubeMatrixAlt[0][2][0], cubeMatrixAlt[2][0][0], cubeMatrixAlt[1][0][2]], // UP-FRONT-LEFT
   [cubeMatrixAlt[0][2][2], cubeMatrixAlt[2][0][2], cubeMatrixAlt[3][0][0]], // UP-FRONT-RIGHT
-  [cubeMatrixAlt[0][0][2], cubeMatrixAlt[4][0][0], cubeMatrixAlt[3][0][2]] // UP-BACK-RIGHT
+  [cubeMatrixAlt[0][0][2], cubeMatrixAlt[5][0][0], cubeMatrixAlt[3][0][2]] // UP-BACK-RIGHT
 ]
 
 downLayerCorners = [
-  [cubeMatrixAlt[5][2][0], cubeMatrixAlt[4][2][2], cubeMatrixAlt[1][2][0]],// DOWN-BACK-LEFT
-  [cubeMatrixAlt[5][0][0], cubeMatrixAlt[2][2][0], cubeMatrixAlt[1][2][2]], // DOWN-FRONT-LEFT
-  [cubeMatrixAlt[5][0][2], cubeMatrixAlt[2][2][2], cubeMatrixAlt[3][2][0]], // DOWN-FRONT-RIGHT
-  [cubeMatrixAlt[5][2][2], cubeMatrixAlt[4][2][0], cubeMatrixAlt[3][2][2]] // DOWN-BACK-RIGHT
+  [cubeMatrixAlt[4][2][0], cubeMatrixAlt[5][2][2], cubeMatrixAlt[1][2][0]],// DOWN-BACK-LEFT
+  [cubeMatrixAlt[4][0][0], cubeMatrixAlt[2][2][0], cubeMatrixAlt[1][2][2]], // DOWN-FRONT-LEFT
+  [cubeMatrixAlt[4][0][2], cubeMatrixAlt[2][2][2], cubeMatrixAlt[3][2][0]], // DOWN-FRONT-RIGHT
+  [cubeMatrixAlt[4][2][2], cubeMatrixAlt[5][2][0], cubeMatrixAlt[3][2][2]] // DOWN-BACK-RIGHT
 
 ]
 }else{
@@ -303,6 +315,7 @@ downLayerCorners = [
 // use facetMainArray elements to pupulate cube faces
   // on each face element
   faceElements.forEach((face, indexOfFace) =>{
+
     // find the corresponding group of facets
     facetMainArr[indexOfFace].forEach((facetMember, indexOfMember) =>{
 
@@ -454,7 +467,7 @@ let  newFront = [
 ]
 
 let  newRight = [
-  cubeMatrixAlt[4][0],
+  cubeMatrixAlt[5][0],
   cubeMatrixAlt[3][1],
   cubeMatrixAlt[3][2]
 ]
@@ -462,8 +475,8 @@ let  newRight = [
 
 let  newBack = [
   cubeMatrixAlt[1][0],
-  cubeMatrixAlt[4][1],
-  cubeMatrixAlt[4][2]
+  cubeMatrixAlt[5][1],
+  cubeMatrixAlt[5][2]
 ]
 
 
@@ -472,8 +485,12 @@ newUp,
 newLeft,
 newFront, 
 newRight, 
-newBack, 
-cubeMatrixAlt[5]
+cubeMatrixAlt[4],
+newBack,
+
+
+
+
 ]
 // if double rotation button pressed use relevant double rotation output
 // button == 'u-btn'? paraOutput.textContent += ' U - ': paraOutput.textContent += ' U2 - ';
@@ -497,7 +514,7 @@ break;
     
     
     let newLeftPrime = [
-      cubeMatrixAlt[4][0],
+      cubeMatrixAlt[5][0],
       cubeMatrixAlt[1][1],
       cubeMatrixAlt[1][2]
     ]
@@ -517,8 +534,8 @@ break;
     
     let newBackPrime = [
       cubeMatrixAlt[3][0],
-      cubeMatrixAlt[4][1],
-      cubeMatrixAlt[4][2]
+      cubeMatrixAlt[5][1],
+      cubeMatrixAlt[5][2]
     ]
     
     
@@ -527,8 +544,11 @@ break;
     newLeftPrime,
     newFrontPrime, 
     newRightPrime, 
+    cubeMatrixAlt[4],
     newBackPrime, 
-    cubeMatrixAlt[5]
+   
+
+
     ]
     paraOutput.textContent += ' U\' - '
 
@@ -551,7 +571,7 @@ function downRotate(button, double){
       let newLeft = [
         cubeMatrixAlt[1][0],
         cubeMatrixAlt[1][1],
-        cubeMatrixAlt[4][2]
+        cubeMatrixAlt[5][2]
       ]
       
       let newFront = [
@@ -568,15 +588,15 @@ function downRotate(button, double){
       
       
       let newBack = [
-        cubeMatrixAlt[4][0],
-        cubeMatrixAlt[4][1],
+        cubeMatrixAlt[5][0],
+        cubeMatrixAlt[5][1],
         cubeMatrixAlt[3][2]
       ]
       
       let newDown = [
-        [cubeMatrixAlt[5][2][0], cubeMatrixAlt[5][1][0], cubeMatrixAlt[5][0][0]], 
-        [cubeMatrixAlt[5][2][1], cubeMatrixAlt[5][1][1], cubeMatrixAlt[5][0][1]], 
-        [cubeMatrixAlt[5][2][2], cubeMatrixAlt[5][1][2], cubeMatrixAlt[5][0][2]]
+        [cubeMatrixAlt[4][2][0], cubeMatrixAlt[4][1][0], cubeMatrixAlt[4][0][0]], 
+        [cubeMatrixAlt[4][2][1], cubeMatrixAlt[4][1][1], cubeMatrixAlt[4][0][1]], 
+        [cubeMatrixAlt[4][2][2], cubeMatrixAlt[4][1][2], cubeMatrixAlt[4][0][2]]
       
       ]
       
@@ -585,8 +605,9 @@ function downRotate(button, double){
       newLeft,
       newFront, 
       newRight, 
-      newBack, 
-      newDown
+      newDown,
+      newBack
+
       ]
 
       // shortcut to render output to match rotation type
@@ -616,20 +637,20 @@ break;
     let newRightPrime = [
       cubeMatrixAlt[3][0],
       cubeMatrixAlt[3][1],
-      cubeMatrixAlt[4][2]
+      cubeMatrixAlt[5][2]
     ]
     
     
     let newBackPrime = [
-      cubeMatrixAlt[4][0],
-      cubeMatrixAlt[4][1],
+      cubeMatrixAlt[5][0],
+      cubeMatrixAlt[5][1],
       cubeMatrixAlt[1][2]
     ]
     
     let newDownPrime = [
-      [cubeMatrixAlt[5][0][2], cubeMatrixAlt[5][1][2], cubeMatrixAlt[5][2][2]], 
-      [cubeMatrixAlt[5][0][1], cubeMatrixAlt[5][1][1], cubeMatrixAlt[5][2][1]], 
-      [cubeMatrixAlt[5][0][0], cubeMatrixAlt[5][1][0], cubeMatrixAlt[5][2][0]]
+      [cubeMatrixAlt[4][0][2], cubeMatrixAlt[4][1][2], cubeMatrixAlt[4][2][2]], 
+      [cubeMatrixAlt[4][0][1], cubeMatrixAlt[4][1][1], cubeMatrixAlt[4][2][1]], 
+      [cubeMatrixAlt[4][0][0], cubeMatrixAlt[4][1][0], cubeMatrixAlt[4][2][0]]
     
     ]
     
@@ -638,8 +659,9 @@ break;
     newLeftPrime,
     newFrontPrime, 
     newRightPrime, 
+    newDownPrime,
     newBackPrime, 
-    newDownPrime
+
 
     ]
     paraOutput.textContent += ' D\' - '
@@ -660,9 +682,9 @@ function leftRotate(button, double){
         case 'l2-btnless':
 
     let newUp = [
-      [cubeMatrixAlt[4][2][2], cubeMatrixAlt[0][0][1], cubeMatrixAlt[0][0][2]], 
-      [cubeMatrixAlt[4][1][2], cubeMatrixAlt[0][1][1], cubeMatrixAlt[0][1][2]], 
-      [cubeMatrixAlt[4][0][2], cubeMatrixAlt[0][2][1], cubeMatrixAlt[0][2][2]]
+      [cubeMatrixAlt[5][2][2], cubeMatrixAlt[0][0][1], cubeMatrixAlt[0][0][2]], 
+      [cubeMatrixAlt[5][1][2], cubeMatrixAlt[0][1][1], cubeMatrixAlt[0][1][2]], 
+      [cubeMatrixAlt[5][0][2], cubeMatrixAlt[0][2][1], cubeMatrixAlt[0][2][2]]
      ]
 
 
@@ -683,15 +705,15 @@ function leftRotate(button, double){
       
       
       let newBack = [
-        [cubeMatrixAlt[4][0][0], cubeMatrixAlt[4][0][1], cubeMatrixAlt[5][2][0]], 
-        [cubeMatrixAlt[4][1][0], cubeMatrixAlt[4][1][1], cubeMatrixAlt[5][1][0]], 
-        [cubeMatrixAlt[4][2][0], cubeMatrixAlt[4][2][1], cubeMatrixAlt[5][0][0]]
+        [cubeMatrixAlt[5][0][0], cubeMatrixAlt[5][0][1], cubeMatrixAlt[4][2][0]], 
+        [cubeMatrixAlt[5][1][0], cubeMatrixAlt[5][1][1], cubeMatrixAlt[4][1][0]], 
+        [cubeMatrixAlt[5][2][0], cubeMatrixAlt[5][2][1], cubeMatrixAlt[4][0][0]]
       ]
       
       let newDown = [
-        [cubeMatrixAlt[2][0][0], cubeMatrixAlt[5][0][1], cubeMatrixAlt[5][0][2]], 
-        [cubeMatrixAlt[2][1][0], cubeMatrixAlt[5][1][1], cubeMatrixAlt[5][1][2]], 
-        [cubeMatrixAlt[2][2][0], cubeMatrixAlt[5][2][1], cubeMatrixAlt[5][2][2]]
+        [cubeMatrixAlt[2][0][0], cubeMatrixAlt[4][0][1], cubeMatrixAlt[4][0][2]], 
+        [cubeMatrixAlt[2][1][0], cubeMatrixAlt[4][1][1], cubeMatrixAlt[4][1][2]], 
+        [cubeMatrixAlt[2][2][0], cubeMatrixAlt[4][2][1], cubeMatrixAlt[4][2][2]]
       
       ]
 
@@ -702,8 +724,9 @@ function leftRotate(button, double){
       newLeft,
       newFront, 
       newRight, 
-      newBack, 
-      newDown
+      newDown,
+      newBack 
+
   
       ]
       // shortcut to render output to match rotation type
@@ -732,9 +755,9 @@ double == 'double'? renderCube(newConfig, 'update', double, 'left'): renderCube(
   ]
 
   let newFrontPrime = [
-[cubeMatrixAlt[5][0][0], cubeMatrixAlt[2][0][1], cubeMatrixAlt[2][0][2]], 
-[cubeMatrixAlt[5][1][0], cubeMatrixAlt[2][1][1], cubeMatrixAlt[2][1][2]], 
-[cubeMatrixAlt[5][2][0], cubeMatrixAlt[2][2][1], cubeMatrixAlt[2][2][2]]
+[cubeMatrixAlt[4][0][0], cubeMatrixAlt[2][0][1], cubeMatrixAlt[2][0][2]], 
+[cubeMatrixAlt[4][1][0], cubeMatrixAlt[2][1][1], cubeMatrixAlt[2][1][2]], 
+[cubeMatrixAlt[4][2][0], cubeMatrixAlt[2][2][1], cubeMatrixAlt[2][2][2]]
   ]
   
   // right face remains unchanged
@@ -742,15 +765,15 @@ double == 'double'? renderCube(newConfig, 'update', double, 'left'): renderCube(
   
   
   let newBackPrime = [
-    [cubeMatrixAlt[4][0][0], cubeMatrixAlt[4][0][1], cubeMatrixAlt[0][2][0]], 
-    [cubeMatrixAlt[4][1][0], cubeMatrixAlt[4][1][1], cubeMatrixAlt[0][1][0]], 
-    [cubeMatrixAlt[4][2][0], cubeMatrixAlt[4][2][1], cubeMatrixAlt[0][0][0]]
+    [cubeMatrixAlt[5][0][0], cubeMatrixAlt[5][0][1], cubeMatrixAlt[0][2][0]], 
+    [cubeMatrixAlt[5][1][0], cubeMatrixAlt[5][1][1], cubeMatrixAlt[0][1][0]], 
+    [cubeMatrixAlt[5][2][0], cubeMatrixAlt[5][2][1], cubeMatrixAlt[0][0][0]]
   ]
   
   let newDownPrime = [
-    [cubeMatrixAlt[4][2][2], cubeMatrixAlt[5][0][1], cubeMatrixAlt[5][0][2]], 
-    [cubeMatrixAlt[4][1][2], cubeMatrixAlt[5][1][1], cubeMatrixAlt[5][1][2]], 
-    [cubeMatrixAlt[4][0][2], cubeMatrixAlt[5][2][1], cubeMatrixAlt[5][2][2]]
+    [cubeMatrixAlt[5][2][2], cubeMatrixAlt[4][0][1], cubeMatrixAlt[4][0][2]], 
+    [cubeMatrixAlt[5][1][2], cubeMatrixAlt[4][1][1], cubeMatrixAlt[4][1][2]], 
+    [cubeMatrixAlt[5][0][2], cubeMatrixAlt[4][2][1], cubeMatrixAlt[4][2][2]]
   
   ]
 
@@ -761,8 +784,9 @@ double == 'double'? renderCube(newConfig, 'update', double, 'left'): renderCube(
   newLeftPrime,
   newFrontPrime, 
   newRightPrime, 
-  newBackPrime, 
-  newDownPrime
+  newDownPrime,
+  newBackPrime 
+
 
   ]
   paraOutput.textContent += ' L\' - '
@@ -792,9 +816,9 @@ function rightRotate(button, double){
         let newLeft = cubeMatrixAlt[1]
 
         let newFront = [
-    [cubeMatrixAlt[2][0][0], cubeMatrixAlt[2][0][1], cubeMatrixAlt[5][0][2]], 
-    [cubeMatrixAlt[2][1][0], cubeMatrixAlt[2][1][1], cubeMatrixAlt[5][1][2]], 
-    [cubeMatrixAlt[2][2][0], cubeMatrixAlt[2][2][1], cubeMatrixAlt[5][2][2]]
+    [cubeMatrixAlt[2][0][0], cubeMatrixAlt[2][0][1], cubeMatrixAlt[4][0][2]], 
+    [cubeMatrixAlt[2][1][0], cubeMatrixAlt[2][1][1], cubeMatrixAlt[4][1][2]], 
+    [cubeMatrixAlt[2][2][0], cubeMatrixAlt[2][2][1], cubeMatrixAlt[4][2][2]]
         ]
         
         let newRight = [
@@ -806,15 +830,15 @@ function rightRotate(button, double){
         
         
         let newBack = [
-          [cubeMatrixAlt[0][2][2], cubeMatrixAlt[4][0][1], cubeMatrixAlt[4][0][2]], 
-          [cubeMatrixAlt[0][1][2], cubeMatrixAlt[4][1][1], cubeMatrixAlt[4][1][2]], 
-          [cubeMatrixAlt[0][0][2], cubeMatrixAlt[4][2][1], cubeMatrixAlt[4][2][2]]
+          [cubeMatrixAlt[0][2][2], cubeMatrixAlt[5][0][1], cubeMatrixAlt[5][0][2]], 
+          [cubeMatrixAlt[0][1][2], cubeMatrixAlt[5][1][1], cubeMatrixAlt[5][1][2]], 
+          [cubeMatrixAlt[0][0][2], cubeMatrixAlt[5][2][1], cubeMatrixAlt[5][2][2]]
         ]
         
         let newDown = [
-          [cubeMatrixAlt[5][0][0], cubeMatrixAlt[5][0][1], cubeMatrixAlt[4][2][0]], 
-          [cubeMatrixAlt[5][1][0], cubeMatrixAlt[5][1][1], cubeMatrixAlt[4][1][0]], 
-          [cubeMatrixAlt[5][2][0], cubeMatrixAlt[5][2][1], cubeMatrixAlt[4][0][0]]
+          [cubeMatrixAlt[4][0][0], cubeMatrixAlt[4][0][1], cubeMatrixAlt[5][2][0]], 
+          [cubeMatrixAlt[4][1][0], cubeMatrixAlt[4][1][1], cubeMatrixAlt[5][1][0]], 
+          [cubeMatrixAlt[4][2][0], cubeMatrixAlt[4][2][1], cubeMatrixAlt[5][0][0]]
         
         ]
 
@@ -825,8 +849,9 @@ function rightRotate(button, double){
         newLeft,
         newFront, 
         newRight, 
+        newDown,
         newBack, 
-        newDown
+
     
         ]
       // shortcut to render output to match rotation type
@@ -839,9 +864,9 @@ double == 'double'? renderCube(newConfig, 'update', double, 'right'): renderCube
    case 'r-prime-btn':
     
    let newUpPrime = [
-    [cubeMatrixAlt[0][0][0], cubeMatrixAlt[0][0][1], cubeMatrixAlt[4][2][0]], 
-    [cubeMatrixAlt[0][1][0], cubeMatrixAlt[0][1][1], cubeMatrixAlt[4][1][0]], 
-    [cubeMatrixAlt[0][2][0], cubeMatrixAlt[0][2][1], cubeMatrixAlt[4][0][0]]
+    [cubeMatrixAlt[0][0][0], cubeMatrixAlt[0][0][1], cubeMatrixAlt[5][2][0]], 
+    [cubeMatrixAlt[0][1][0], cubeMatrixAlt[0][1][1], cubeMatrixAlt[5][1][0]], 
+    [cubeMatrixAlt[0][2][0], cubeMatrixAlt[0][2][1], cubeMatrixAlt[5][0][0]]
    ]
 
 // left remains unchanged
@@ -862,15 +887,15 @@ double == 'double'? renderCube(newConfig, 'update', double, 'right'): renderCube
     
     
     let newBackPrime = [
-      [cubeMatrixAlt[5][2][2], cubeMatrixAlt[4][0][1], cubeMatrixAlt[4][0][2]], 
-      [cubeMatrixAlt[5][1][2], cubeMatrixAlt[4][1][1], cubeMatrixAlt[4][1][2]], 
-      [cubeMatrixAlt[5][0][2], cubeMatrixAlt[4][2][1], cubeMatrixAlt[4][2][2]]
+      [cubeMatrixAlt[4][2][2], cubeMatrixAlt[5][0][1], cubeMatrixAlt[5][0][2]], 
+      [cubeMatrixAlt[4][1][2], cubeMatrixAlt[5][1][1], cubeMatrixAlt[5][1][2]], 
+      [cubeMatrixAlt[4][0][2], cubeMatrixAlt[5][2][1], cubeMatrixAlt[5][2][2]]
     ]
     
     let newDownPrime = [
-      [cubeMatrixAlt[5][0][0], cubeMatrixAlt[5][0][1], cubeMatrixAlt[2][0][2]], 
-      [cubeMatrixAlt[5][1][0], cubeMatrixAlt[5][1][1], cubeMatrixAlt[2][1][2]], 
-      [cubeMatrixAlt[5][2][0], cubeMatrixAlt[5][2][1], cubeMatrixAlt[2][2][2]]
+      [cubeMatrixAlt[4][0][0], cubeMatrixAlt[4][0][1], cubeMatrixAlt[2][0][2]], 
+      [cubeMatrixAlt[4][1][0], cubeMatrixAlt[4][1][1], cubeMatrixAlt[2][1][2]], 
+      [cubeMatrixAlt[4][2][0], cubeMatrixAlt[4][2][1], cubeMatrixAlt[2][2][2]]
     
     ]
 
@@ -881,8 +906,9 @@ double == 'double'? renderCube(newConfig, 'update', double, 'right'): renderCube
     newLeftPrime,
     newFrontPrime, 
     newRightPrime, 
+    newDownPrime,
     newBackPrime, 
-    newDownPrime
+   
 
     ]
     paraOutput.textContent += ' R\' - '
@@ -908,8 +934,8 @@ case 'f2-btnless':
     
     let  newDown = [
       [cubeMatrixAlt[3][2][0], cubeMatrixAlt[3][1][0], cubeMatrixAlt[3][0][0]],
-      cubeMatrixAlt[5][1],
-      cubeMatrixAlt[5][2]
+      cubeMatrixAlt[4][1],
+      cubeMatrixAlt[4][2]
     ]
 
     let newRight = [
@@ -919,9 +945,9 @@ case 'f2-btnless':
     ]
 
       let newLeft = [
-        [cubeMatrixAlt[1][0][0], cubeMatrixAlt[1][0][1], cubeMatrixAlt[5][0][0]], 
-        [cubeMatrixAlt[1][1][0], cubeMatrixAlt[1][1][1], cubeMatrixAlt[5][0][1]], 
-        [cubeMatrixAlt[1][2][0], cubeMatrixAlt[1][2][1], cubeMatrixAlt[5][0][2]]
+        [cubeMatrixAlt[1][0][0], cubeMatrixAlt[1][0][1], cubeMatrixAlt[4][0][0]], 
+        [cubeMatrixAlt[1][1][0], cubeMatrixAlt[1][1][1], cubeMatrixAlt[4][0][1]], 
+        [cubeMatrixAlt[1][2][0], cubeMatrixAlt[1][2][1], cubeMatrixAlt[4][0][2]]
       ]
 
       let newFront = [
@@ -931,7 +957,7 @@ case 'f2-btnless':
        ]
       
 // back remains unchanged
-  let newBack = cubeMatrixAlt[4]
+  let newBack = cubeMatrixAlt[5]
       
 
 
@@ -942,8 +968,8 @@ case 'f2-btnless':
       newLeft,
       newFront, 
       newRight, 
-      newBack, 
-      newDown
+      newDown, 
+      newBack
   
       ]
       // shortcut to render output to match rotation type
@@ -975,18 +1001,18 @@ double == 'double'? renderCube(newConfig, 'update', double, 'front'): renderCube
   ]
   
   let newRightPrime = [
-    [cubeMatrixAlt[5][0][2], cubeMatrixAlt[3][0][1], cubeMatrixAlt[3][0][2]], 
-    [cubeMatrixAlt[5][0][1], cubeMatrixAlt[3][1][1], cubeMatrixAlt[3][1][2]], 
-    [cubeMatrixAlt[5][0][0], cubeMatrixAlt[3][2][1], cubeMatrixAlt[3][2][2]]
+    [cubeMatrixAlt[4][0][2], cubeMatrixAlt[3][0][1], cubeMatrixAlt[3][0][2]], 
+    [cubeMatrixAlt[4][0][1], cubeMatrixAlt[3][1][1], cubeMatrixAlt[3][1][2]], 
+    [cubeMatrixAlt[4][0][0], cubeMatrixAlt[3][2][1], cubeMatrixAlt[3][2][2]]
   ]
   
 // back remains unchanged
-let newBackPrime = cubeMatrixAlt[4]
+let newBackPrime = cubeMatrixAlt[5]
 
   let newDownPrime = [
     [cubeMatrixAlt[1][0][2], cubeMatrixAlt[1][1][2], cubeMatrixAlt[1][2][2]],
-    cubeMatrixAlt[5][1],
-    cubeMatrixAlt[5][2]
+    cubeMatrixAlt[4][1],
+    cubeMatrixAlt[4][2]
   
   ]
 
@@ -997,8 +1023,9 @@ let newBackPrime = cubeMatrixAlt[4]
   newLeftPrime,
   newFrontPrime, 
   newRightPrime, 
+  newDownPrime,
   newBackPrime, 
-  newDownPrime
+
 
   ]
   paraOutput.textContent += ' F\' - '
@@ -1024,15 +1051,15 @@ case 'b2-btnless':
     ]
     
     let  newDown = [
-      cubeMatrixAlt[5][0],
-      cubeMatrixAlt[5][1],
+      cubeMatrixAlt[4][0],
+      cubeMatrixAlt[4][1],
       [cubeMatrixAlt[1][0][0], cubeMatrixAlt[1][1][0], cubeMatrixAlt[1][2][0]]
     ]
 
     let newRight = [
-      [cubeMatrixAlt[3][0][0], cubeMatrixAlt[3][0][1], cubeMatrixAlt[5][2][2]], 
-      [cubeMatrixAlt[3][1][0], cubeMatrixAlt[3][1][1], cubeMatrixAlt[5][2][1]], 
-      [cubeMatrixAlt[3][2][0], cubeMatrixAlt[3][2][1], cubeMatrixAlt[5][2][0]]
+      [cubeMatrixAlt[3][0][0], cubeMatrixAlt[3][0][1], cubeMatrixAlt[4][2][2]], 
+      [cubeMatrixAlt[3][1][0], cubeMatrixAlt[3][1][1], cubeMatrixAlt[4][2][1]], 
+      [cubeMatrixAlt[3][2][0], cubeMatrixAlt[3][2][1], cubeMatrixAlt[4][2][0]]
     ]
 
       let newLeft = [
@@ -1042,9 +1069,9 @@ case 'b2-btnless':
       ]
 
       let newBack = [
-        [cubeMatrixAlt[4][2][0], cubeMatrixAlt[4][1][0], cubeMatrixAlt[4][0][0]], 
-        [cubeMatrixAlt[4][2][1], cubeMatrixAlt[4][1][1], cubeMatrixAlt[4][0][1]], 
-        [cubeMatrixAlt[4][2][2], cubeMatrixAlt[4][1][2], cubeMatrixAlt[4][0][2]]
+        [cubeMatrixAlt[5][2][0], cubeMatrixAlt[5][1][0], cubeMatrixAlt[5][0][0]], 
+        [cubeMatrixAlt[5][2][1], cubeMatrixAlt[5][1][1], cubeMatrixAlt[5][0][1]], 
+        [cubeMatrixAlt[5][2][2], cubeMatrixAlt[5][1][2], cubeMatrixAlt[5][0][2]]
       ]
 // front remains unchanged
       let newFront = cubeMatrixAlt[2]
@@ -1055,8 +1082,9 @@ case 'b2-btnless':
       newLeft,
       newFront, 
       newRight, 
+      newDown,
       newBack, 
-      newDown
+
   
       ]
       // shortcut to render output to match rotation type
@@ -1076,9 +1104,9 @@ double == 'double'? renderCube(newConfig, 'update', double, 'back'): renderCube(
 
 
   let newLeftPrime = [
-    [cubeMatrixAlt[5][2][0], cubeMatrixAlt[1][0][1], cubeMatrixAlt[1][0][2]], 
-    [cubeMatrixAlt[5][2][1], cubeMatrixAlt[1][1][1], cubeMatrixAlt[1][1][2]], 
-    [cubeMatrixAlt[5][2][2], cubeMatrixAlt[1][2][1], cubeMatrixAlt[1][2][2]]
+    [cubeMatrixAlt[4][2][0], cubeMatrixAlt[1][0][1], cubeMatrixAlt[1][0][2]], 
+    [cubeMatrixAlt[4][2][1], cubeMatrixAlt[1][1][1], cubeMatrixAlt[1][1][2]], 
+    [cubeMatrixAlt[4][2][2], cubeMatrixAlt[1][2][1], cubeMatrixAlt[1][2][2]]
   ]
   // front remains unchanged
   let newFrontPrime = [...cubeMatrixAlt[2]]
@@ -1091,15 +1119,15 @@ double == 'double'? renderCube(newConfig, 'update', double, 'back'): renderCube(
   
 
 let newBackPrime = [
-  [cubeMatrixAlt[4][0][2], cubeMatrixAlt[4][1][2], cubeMatrixAlt[4][2][2]], 
-  [cubeMatrixAlt[4][0][1], cubeMatrixAlt[4][1][1], cubeMatrixAlt[4][2][1]], 
-  [cubeMatrixAlt[4][0][0], cubeMatrixAlt[4][1][0], cubeMatrixAlt[4][2][0]]
+  [cubeMatrixAlt[5][0][2], cubeMatrixAlt[5][1][2], cubeMatrixAlt[5][2][2]], 
+  [cubeMatrixAlt[5][0][1], cubeMatrixAlt[5][1][1], cubeMatrixAlt[5][2][1]], 
+  [cubeMatrixAlt[5][0][0], cubeMatrixAlt[5][1][0], cubeMatrixAlt[5][2][0]]
 ]
 
   let newDownPrime = [
 
-    cubeMatrixAlt[5][0],
-    cubeMatrixAlt[5][1],
+    cubeMatrixAlt[4][0],
+    cubeMatrixAlt[4][1],
     [cubeMatrixAlt[3][2][2], cubeMatrixAlt[3][1][2], cubeMatrixAlt[3][0][2]]
   
   ]
@@ -1111,8 +1139,9 @@ let newBackPrime = [
   newLeftPrime,
   newFrontPrime, 
   newRightPrime, 
+  newDownPrime,
   newBackPrime, 
-  newDownPrime
+
 
   ]
 
@@ -1145,15 +1174,63 @@ let B2 = 'B2'
 let U2 = 'U2'
 let D2 = 'D2'
 
-// F2L only scrambles for front-right edge
-let xppf23 = [R, U, RP, U2, R, U2, RP, UP, R, U, RP]
-let xppt23 = [FP, U, F, U2, R, U, RP]
-let yppf23 = [FP, U, F, UP, R, U2, RP, U]
-let yppt23 = [F, RP, FP, R]
-let zppf23 = [R, UP, RP, U, R, U2, RP]
-let zppt23 = [R, U, RP, F, R, U, RP, UP, FP]
+
+// F2L only scrambles for BACK left edge 
+let BLxppf = [L, U, LP, U2, L, U2, LP, UP, L, U, LP]//
+let BLxppt = [BP, U, B, U2, L, U, LP]//
+let BLyppf = [BP, U, B, UP, L, U2, LP, U]//
+let BLyppt = [B, LP, BP, L]
+let BLzppf = [L, UP, LP, U, L, U2, LP]
+let BLzppt = [L, U, LP, B, L, U, LP, UP, BP]
 // algorithm for flipping the F2L pair to its reflection
-let inv23 = [RP, F, R, F2, UP, F, U]
+let BLinv = [LP, B, L, B2, UP, B, U] // GOOD
+
+
+
+// F2L only scrambles for FRONT-right edge - DONE =======================================
+let FRxppf = [R, U, RP, U2, R, U2, RP, UP, R, U, RP]
+let FRxppt = [FP, U, F, U2, R, U, RP]
+let FRyppf = [FP, U, F, UP, R, U2, RP, U]
+let FRyppt = [F, RP, FP, R]
+let FRzppf = [R, UP, RP, U, R, U2, RP]
+let FRzppt = [R, U, RP, F, R, U, RP, UP, FP]
+// algorithm for flipping the F2L pair to its reflection
+let FRinv = [RP, F, R, F2, UP, F, U] // GOOD
+
+
+
+
+// F2L only scrambles for FRONT left edge - DONE =====================================
+let FLxppf = [LP, UP, L, U2, LP, U2, L, U2, LP, U2, L]//
+let FLxppt = [L, FP, LP, F]//
+let FLyppf = [F, U, FP, U2, F, U2, FP, UP, F, U, FP]//
+let FLyppt = [LP, U, L, U2, F, U, FP]//
+let FLzppf = [F, UP, FP, U, F, U2, FP]//
+let FLzppt = [F, U, FP, L, F, U, FP, UP, LP]//
+// algorithm for flipping the F2L pair to its reflection
+let FLinv = [FP, L, F, L2, UP, L, U]// GOOD
+
+
+
+
+// F2L only scrambles for BACK -right edge - DONE ====================================
+let BRxppf = [RP, UP, R, U2, RP, U2, R, U2, RP, U2, R]
+let BRxppt = [R, BP, RP, B]
+let BRyppf = [B, UP, BP, UP, B, U, BP, U]
+let BRyppt = [BP, R, B, R2, UP, R, U2, RP, U, R]
+let BRzppf = [B, UP, BP, U, B, U2, BP]
+let BRzppt = [B, U, BP, R, B, U, BP, UP, RP]  //PP
+// algorithm for flipping the F2L pair to its reflection
+let BRinv = [BP, R, B, R2, UP, R, U] // GOOD
+
+
+
+
+
+
+
+
+
 
 // test scrambles
 let scramble1 = [F,L,R2,B,U]
@@ -1168,34 +1245,234 @@ F2Lbtns.forEach(button =>{
   })
   })
 
+
+  // for testing the F2L algorithms; there is no need to solve the cross, which the program will try to do, even if the cube is not fully scrambled.  So this temporary array is used to populate the array for solved cross pieces; given that the array will be full, no check will be made for cross pieces because the full array indicates a complete cross.  The program will progress on to the F2L pair solve stage (which will also be bypassed)
+  let fullCrossTestArray = [
+    {
+      'index_in_layer': 0,
+      'cross_piece': ['w', 'r'], 
+      'piece_position':'down-back'
+    }, {
+      'index_in_layer': 1,
+      'cross_piece': ['w', 'g'], 
+      'piece_position':'down-left'
+    }, 
+    {
+      'index_in_layer': 2,
+      'cross_piece': ['w', 'e'], 
+      'piece_position':'down-front'
+    }, 
+    {
+      'index_in_layer': 3,
+      'cross_piece': ['w', 'b'], 
+      'piece_position':'down-right'
+    }
+
+  ]
+
+  // array to hold currently used F2L scramble; the button of the currently used scramble will be colored to distinguish it from other buttons so I know which scramble is being used.  When a new scramble is used, then the button linked to the previous scramble will have its colors reset, in the F2L reset function below. 
+let F2LBtnStylingArray = []
 // test scrambles for F2L only solves
 function f2lScramble(id){
-  console.log('id')
-  console.log(id)
-  // given that 
-switch(id){
-case 'xppf':
-  algorithmExecution(xppf23)
-break;
-case 'xppt':
-    algorithmExecution(xppt23)
-break;
-case 'yppf':
-    algorithmExecution(yppf23)
-break;
-case 'yppt':
-    algorithmExecution(yppt23)
-break;
-case 'zppf':
-    algorithmExecution(zppf23)
-break;
-case 'zppt':
-    algorithmExecution(zppt23)
-break;
-case 'inv-btn':
-  algorithmExecution(inv23)
-  break;
+// this is the button for the previously used scramble.  The button will revert to default colour when another scramble button is pressed
+  let previousF2LBtn;
+// button color testing origingal F2L configurations
+let originalF2LConfigStyle = 'background-color: rgb(117, 146, 241); color:white;'
+// color for reflection configuration
+let relfectionConfigStyle = 'background-color: red; color:white;' 
+// current F2L scramble button variable
+let currentF2LBtn;
+let initialBtnColor = 'rgb(117, 146, 241)'
+
+  // get button element which has incoming id (if the id is not for solve button or F2L reflection button)
+  if(!id.includes('solve') && !id.includes('inv')){
+  // if  styling array is populated (it will only have one element since the array is cleared on each re-execution of the funtion)
+  if(F2LBtnStylingArray.length > 0){
+    // get previous button 
+   previousF2LBtn = F2LBtnStylingArray[0]
+    // get clear styling information on the button
+  previousF2LBtn.style.cssText = ''
+// clear the array in readiness for the new button information
+F2LBtnStylingArray = []
 }
+
+    currentF2LBtn = document.getElementById(id)
+    // style the button with the distinguishing colors
+      currentF2LBtn.style.cssText = originalF2LConfigStyle
+      // send the button to the styling array
+      F2LBtnStylingArray.push(currentF2LBtn)
+  }
+
+
+
+
+
+  // clear oriented cross edges array of any previous values from other solves
+  orientedCrossEdgeArray = []
+  // populate oriented cross edge array with all the solved edges; since this is an F2L only scramble, all the cross edges will remain in place - this will halt the search for cross edge pieces and initiate the stage which searches for F2L pieces
+  fullCrossTestArray.forEach(edge =>{
+    orientedCrossEdgeArray.push(edge)
+  })
+
+  // populate the solved F2L index array with the vertical edge index of F2L pairs not intended for scrambling, by checking the two characters contained in the id of the scrambling button that refer to the vertical index position of the F2L pair to be scrambled, i.e. bl, fl, fr and br. The two characters are associated with a specific vertical index; create an array and push all indexes except the vertical index associated with the incoming button id.  The button will scrmble the F2L corner/edge piece.  When the solve begins and the F2L search initiates,  it will disregard corner pieces found at first layer indexes that match any of the values in the array, that is, corners that are situated at already solved vertical edges, i.e. corner pieces belonging to solved F2L pairs.  Only the unsolved vertical edge corner piece on the first layer, and all last layer corner pieces will be assessed in the search for the missing F2L corner piece. 
+
+  if(id.includes('_bl')){
+    console.log('bl')
+    solvedF2LIndexesArray = [1, 2, 3]
+  }else if(id.includes('_fl')){
+    console.log('fl')
+    solvedF2LIndexesArray = [0, 2, 3]
+  }if(id.includes('_fr')){
+    console.log('fr')
+    solvedF2LIndexesArray = [0, 1, 3]
+  }else if(id.includes('_br')){
+    console.log('br')
+    solvedF2LIndexesArray = [0, 1, 3]
+  }
+
+  // given that 
+
+  // have a short delay so the arrays have time to populate. 
+  setTimeout(() => {
+
+    console.log('id')
+    console.log(id)
+    console.log('all cross pieces')
+    console.log(orientedCrossEdgeArray)
+    console.log('solved F2L indexes')
+    console.log(solvedF2LIndexesArray)
+    switch(id){
+
+      case 'solve-f2l':
+        if(solvedF2LIndexesArray.length > 2){
+          console.log('F2L solve in progress')
+          // clear solution array
+          solutionArray = []
+          findF2LcornersFirstLayer(solvedF2LIndexesArray)
+        }else{
+          alert('scramble an F2L first')
+        }
+        break;
+
+      // ==== front RIGHT cases
+      case 'xppf_fr':
+        algorithmExecution(FRxppf)
+      break;
+      case 'xppt_fr':
+          algorithmExecution(FRxppt)
+      break;
+      case 'yppf_fr':
+          algorithmExecution(FRyppf)
+      break;
+      case 'yppt_fr':
+          algorithmExecution(FRyppt)
+      break;
+      case 'zppf_fr':
+          algorithmExecution(FRzppf)
+      break;
+      case 'zppt_fr':
+          algorithmExecution(FRzppt)
+      break;
+      case 'inv-FR-btn':
+        algorithmExecution(FRinv)
+        break;
+
+        // === back RIGHT cases
+
+        case 'xppf_br':
+          algorithmExecution(BRxppf)
+        break;
+        case 'xppt_br':
+            algorithmExecution(BRxppt)
+        break;
+        case 'yppf_br':
+            algorithmExecution(BRyppf)
+        break;
+        case 'yppt_br':
+            algorithmExecution(BRyppt)
+        break;
+        case 'zppf_br':
+            algorithmExecution(BRzppf)
+        break;
+        case 'zppt_br':
+            algorithmExecution(BRzppt)
+        break;
+        case 'inv-BR-btn':
+          algorithmExecution(BRinv)
+          break;
+
+        // === front LEFT cases
+
+        
+        case 'xppf_fl':
+          algorithmExecution(FLxppf)
+        break;
+        case 'xppt_fl':
+            algorithmExecution(FLxppt)
+        break;
+        case 'yppf_fl':
+            algorithmExecution(FLyppf)
+        break;
+        case 'yppt_fl':
+            algorithmExecution(FLyppt)
+        break;
+        case 'zppf_fl':
+            algorithmExecution(FLzppf)
+        break;
+        case 'zppt_fl':
+            algorithmExecution(FLzppt)
+        break;
+        case 'inv-FL-btn':
+orientationStyling()
+          algorithmExecution(FLinv)
+          break;
+
+        // === back LEFT cases
+
+        
+        case 'xppf_bl':
+          algorithmExecution(BLxppf)
+        break;
+        case 'xppt_bl':
+            algorithmExecution(BLxppt)
+        break;
+        case 'yppf_bl':
+            algorithmExecution(BLyppf)
+        break;
+        case 'yppt_bl':
+            algorithmExecution(BLyppt)
+        break;
+        case 'zppf_bl':
+            algorithmExecution(BLzppf)
+        break;
+        case 'zppt_bl':
+            algorithmExecution(BLzppt)
+        break;
+        case 'inv-BL-btn':
+         
+          algorithmExecution(BLinv)
+          break;
+      }
+
+// function for changing button styling, depending on orientation of F2L pair
+function orientationStyling(edge){
+  console.log('changing button style')
+  console.log('styling array entry')
+
+if(F2LBtnStylingArray.length > 0)
+console.log(F2LBtnStylingArray[0])
+let buttonColor = F2LBtnStylingArray[0].style.backgroundColor
+  if(buttonColor == initialBtnColor ){
+    F2LBtnStylingArray[0].style.backgroundColor = 'red'
+  }
+  else{
+    console.log('color is red')
+    F2LBtnStylingArray[0].style.backgroundColor = initialBtnColor
+  }
+}
+
+  }, 200);
+
 }
 
 
@@ -1209,9 +1486,12 @@ const changeCubeState = (clickedButton) =>{
     algorithmExecution(scramble3)
     break;
     case 'solve': console.log('solving cube...')
+
     // reset the number of moves in the output so you can see the number of moves it takes to solve 
     if(downLayerEdges.length > 0){
       movesPara.textContent = 0;
+      // clear solution array so scramble algorithm is removed and purely solve algorithms are recorded
+      solutionArray = []
       checkCrossDownLayer()
     }else{
       alert('cube not scrambled: no moves executed yet; scramble cube before solving')
@@ -2174,30 +2454,37 @@ setTimeout(() => {
 // DETERMINE VERTICAL EDGE THAT THE CROSS PIECE SITS ON
     case 0:
       if(childIndex === 1){ // BL edge, color is on left-face
-        leftRotate('l-prime-btn')
+        algorithmExecution([LP])
       }else{
-        backRotate('b-btn') // color facet is on back-face
+        algorithmExecution([B])
+        // backRotate('b-btn') // color facet is on back-face
       }
       break;
       case 1:
         if(childIndex === 1){// FL edge, color is on left-face
-          leftRotate('l-btn')
+          algorithmExecution([L])
+          // leftRotate('l-btn')
         }else{
-          frontRotate('f-prime-btn')// color is on front-face
+          algorithmExecution([FP])
+          // frontRotate('f-prime-btn')// color is on front-face
         }
         break;
         case 2:
           if(childIndex === 3){// FR edge, color is on right-face
-            rightRotate('r-prime-btn')
+            algorithmExecution([RP])
+            // rightRotate('r-prime-btn')
           }else{
-            frontRotate('f-btn') // color is on front-face
+            algorithmExecution([F])
+            // frontRotate('f-btn') // color is on front-face
           }
           break;
           default:
             if(childIndex === 3){ // BR edge, color is on right-face
-              rightRotate('r-btn')
+              algorithmExecution([R])
+              // rightRotate('r-btn')
             }else{
-              backRotate('b-prime-btn')// color is on back face
+              algorithmExecution([BP])
+              // backRotate('b-prime-btn')// color is on back face
             }
 
    }
@@ -2430,7 +2717,7 @@ upLayerEdges.forEach((edge,index) =>{
               // name the edge piece according to the position  where it lies in the layer
               if(index === 0){
                 crossPiecePosition = ['up', 'back']
-                facetIndexes = [0, 2]
+                facetIndexes = [0, 0]
               }else if(index === 1){
                 crossPiecePosition = ['up', 'left']
                 facetIndexes = [0, 1]
@@ -2963,19 +3250,19 @@ let verticalEdgeName;
 let facetPositionNames;
         switch(downIndex){
 case 0: verticalEdgeName = ['back', 'left']
-cornerFacetIndexes = [5, 0, 1] 
+cornerFacetIndexes = [4, 0, 1] 
 facetPositionNames = ['down', 'back', 'left']
 break;
 case 1: verticalEdgeName = ['front', 'left']
-cornerFacetIndexes = [5, 2, 1]
+cornerFacetIndexes = [4, 2, 1]
 facetPositionNames = ['down', 'front', 'left']
 break;
 case 2: verticalEdgeName = ['front', 'right']
-cornerFacetIndexes = [5, 2, 3]
+cornerFacetIndexes = [4, 2, 3]
 facetPositionNames = ['down', 'front', 'right']
 break;
 default: verticalEdgeName = ['back', 'right']
-cornerFacetIndexes = [5, 0, 3]
+cornerFacetIndexes = [4, 0, 3]
 facetPositionNames = ['down', 'back', 'right']
         }
 
@@ -4357,15 +4644,15 @@ if(isParallelBoolean === true){
     switch(naturalPosition){
       case 0: algorithmArray = ['L', 'U`', 'L`', 'U2', 'B`', 'U', 'B', 'L', 'U2', 'L`']
         break;
-        case 1: algorithmArray = [F, UP, FP, U, F, UP, F, U2, F, UP, FP]
+        case 1: algorithmArray = [F, U2, FP, U2, F, U2, FP, UP, F, U2, FP]
           break;
           case 2: algorithmArray = ['R', 'U`', 'R`', 'U2', 'F`', 'U', 'F', 'R', 'U2', 'R`']
             break;
     default: // vertical edge must be 3
-    algorithmArray = [B, UP, BP, U, B, UP, B, U2, B, UP, BP]
+    algorithmArray = [B, UP, BP, U, B, UP, BP, U2, B, UP, BP]
     }
     
-    
+
     }
     }else{ // the piece is PERPENDICULAR in orientation
     if(solvedEdge === true){
@@ -4458,7 +4745,7 @@ if(isParallelBoolean === true){
               case 2: algorithmArray = ['R', 'U2', 'R`', 'U`', 'R', 'U', 'R`']
                 break;
         default: // vertical edge must be 3
-        algorithmArray = [B, U2, BP, UP, B, U, BP]
+        algorithmArray = ['B', 'U2', 'B`', 'U`', 'B', 'U', 'B`']
         }
         
         
@@ -4494,7 +4781,7 @@ if(solvedPieces < 4){
   console.log('F2L stage complete.  Orient Last Layer...')
   // test OLL algo for scramble 3
   console.log('test OLL algo')
-  algorithmExecution([U,F,R,U,RP,UP,FP])
+  // algorithmExecution([U,F,R,U,RP,UP,FP])
   
  
 }
