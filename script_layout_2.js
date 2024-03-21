@@ -24,10 +24,20 @@ let cubeRotationBtns = document.querySelectorAll('.cube-rotate-btn')
 let cubeRotatePrimeBtns = document.querySelectorAll('.cube-rotate-prime-btn')
 // buttons for double rotations
 let doubleFaceRotationBtns = document.querySelectorAll('.face-double-rotate-btn')
-
+ 
 let F2Lbtns = document.querySelectorAll('.f2l-btn')
+// button for inverting F2L scramble to render reflection of original
+let inversionBtn = document.getElementById('inv-btn')
+// buttons for test scrambles
+let scrambleBtns = document.querySelectorAll('.test-scrambles') 
 
 
+// scrambles function
+scrambleBtns.forEach(button =>{
+  button.addEventListener('click', event =>{
+    newScramble(event.target.id)
+  })
+  })
 
   //  DEFAULT FACE ROTATIONS (SINGLE)
   faceRotateBtns.forEach(button =>{
@@ -158,6 +168,8 @@ let downLayerCorners = []
 
 let F2LCornersFirstLayerArray = []
 let F2LCornersLastLayerArray = []
+
+
 
 
 
@@ -1224,19 +1236,18 @@ let BRzppt = [B, U, BP, R, B, U, BP, UP, RP]  //PP
 let BRinv = [BP, R, B, R2, UP, R, U] // GOOD
 
 
+// scrambles - the number part refer to the number of moves in the scramble
+let scramble6a = [R,F2,U,FP,B2,LP]; // solves to F2L
+let scramble6b = [D2,FP,D,U2,L,RP];  // solves to F2L
+let scramble6c = [B2,L,BP,LP,B2,LP];  // solves to F2L
+let scramble10a = [R2, U, F2, R, U2, LP, BP, L2, D, BP];  // STUCK AT CROSS (TWO ORIENTED PIECES) - solved, was missing algoExecution funcion and missed parenthesis on end of checkMidLayer function which executes after permuting the two. Scramble now solves to FL2
+let scramble10b = [B2, RP, F, U, DP, BP, DP, U2, LP, U];  // solves to F2L
+let scramble10c = [UP, FP, R, F2, B, L2, R, U, F, R];   // solves to F2L
+let scramble15a = [RP, F2, U2, FP, RP, F2, UP, R2, BP, L2, UP, LP, R, D, LP];  // solves to F2L
+let scramble15b = [L, R2, U, FP, B, LP, BP, U2, B, R, FP, R, L2, F, R2];   // solves to F2L
+let scramble15c = [F2, U2, LP, BP, FP, R, U2, B, UP, L, DP, B2, L2, B, DP];  // solves to F2L
 
 
-
-
-
-
-
-
-// test scrambles
-let scramble1 = [F,L,R2,B,U]
-let scramble2 = [B2,L,BP,LP,B2,LP]
-let scramble3 = [D2,FP,D,U2,L,RP]
-let scramble4 = [R,F2,U,FP,B2,LP,BP,R2,U,BP]
 
 // lister for F2L-only scramble buttons
 F2Lbtns.forEach(button =>{
@@ -1273,25 +1284,37 @@ F2Lbtns.forEach(button =>{
   // array to hold currently used F2L scramble; the button of the currently used scramble will be colored to distinguish it from other buttons so I know which scramble is being used.  When a new scramble is used, then the button linked to the previous scramble will have its colors reset, in the F2L reset function below. 
 let F2LBtnStylingArray = []
 // test scrambles for F2L only solves
+
+
+
+  
+  // variable for edge name
+  let verticalEdgeName = []
+
+
 function f2lScramble(id){
+
+
 // this is the button for the previously used scramble.  The button will revert to default colour when another scramble button is pressed
   let previousF2LBtn;
 // button color testing origingal F2L configurations
 let originalF2LConfigStyle = 'background-color: rgb(117, 146, 241); color:white;'
-// color for reflection configuration
-let relfectionConfigStyle = 'background-color: red; color:white;' 
 // current F2L scramble button variable
+let reflectionStyle = 'background-color: red; color:white;' 
 let currentF2LBtn;
 let initialBtnColor = 'rgb(117, 146, 241)'
 
   // get button element which has incoming id (if the id is not for solve button or F2L reflection button)
   if(!id.includes('solve') && !id.includes('inv')){
+    // reset the number in the moves output para
+    movesPara.textContent = 0
   // if  styling array is populated (it will only have one element since the array is cleared on each re-execution of the funtion)
   if(F2LBtnStylingArray.length > 0){
     // get previous button 
    previousF2LBtn = F2LBtnStylingArray[0]
     // get clear styling information on the button
   previousF2LBtn.style.cssText = ''
+
 // clear the array in readiness for the new button information
 F2LBtnStylingArray = []
 }
@@ -1309,6 +1332,11 @@ F2LBtnStylingArray = []
 
   // clear oriented cross edges array of any previous values from other solves
   orientedCrossEdgeArray = []
+
+  // push full cross details to oriented cross pieces array, populate solved index array, and style and name reflection button specific to the F2L scramble executed, but ONLY IF a button for scrambling an F2L edge has been pressed. 
+setTimeout(() => {
+  if(F2LBtnStylingArray.length > 0){
+
   // populate oriented cross edge array with all the solved edges; since this is an F2L only scramble, all the cross edges will remain in place - this will halt the search for cross edge pieces and initiate the stage which searches for F2L pieces
   fullCrossTestArray.forEach(edge =>{
     orientedCrossEdgeArray.push(edge)
@@ -1318,29 +1346,37 @@ F2LBtnStylingArray = []
 
   if(id.includes('_bl')){
     console.log('bl')
+    verticalEdgeName.unshift('Reflect: Back-Left')
     solvedF2LIndexesArray = [1, 2, 3]
   }else if(id.includes('_fl')){
     console.log('fl')
+    verticalEdgeName.unshift('Reflect: Front-Left')
     solvedF2LIndexesArray = [0, 2, 3]
   }if(id.includes('_fr')){
     console.log('fr')
+    verticalEdgeName.unshift('Reflect: Front-Right')
     solvedF2LIndexesArray = [0, 1, 3]
   }else if(id.includes('_br')){
     console.log('br')
-    solvedF2LIndexesArray = [0, 1, 3]
+    verticalEdgeName.unshift('Reflect: Back-Right')
+    solvedF2LIndexesArray = [0, 1, 2]
   }
+
+    // give the relfection button the text that reflects the name of the scrambled edge. 
+    inversionBtn.textContent = verticalEdgeName[0]
+    inversionBtn.style.cssText = originalF2LConfigStyle
+
+  }
+
+}, 200);
+
+
 
   // given that 
 
   // have a short delay so the arrays have time to populate. 
   setTimeout(() => {
 
-    console.log('id')
-    console.log(id)
-    console.log('all cross pieces')
-    console.log(orientedCrossEdgeArray)
-    console.log('solved F2L indexes')
-    console.log(solvedF2LIndexesArray)
     switch(id){
 
       case 'solve-f2l':
@@ -1373,9 +1409,7 @@ F2LBtnStylingArray = []
       case 'zppt_fr':
           algorithmExecution(FRzppt)
       break;
-      case 'inv-FR-btn':
-        algorithmExecution(FRinv)
-        break;
+  
 
         // === back RIGHT cases
 
@@ -1397,10 +1431,6 @@ F2LBtnStylingArray = []
         case 'zppt_br':
             algorithmExecution(BRzppt)
         break;
-        case 'inv-BR-btn':
-          algorithmExecution(BRinv)
-          break;
-
         // === front LEFT cases
 
         
@@ -1422,11 +1452,6 @@ F2LBtnStylingArray = []
         case 'zppt_fl':
             algorithmExecution(FLzppt)
         break;
-        case 'inv-FL-btn':
-orientationStyling()
-          algorithmExecution(FLinv)
-          break;
-
         // === back LEFT cases
 
         
@@ -1448,27 +1473,71 @@ orientationStyling()
         case 'zppt_bl':
             algorithmExecution(BLzppt)
         break;
-        case 'inv-BL-btn':
-         
-          algorithmExecution(BLinv)
+        case 'inv-btn':
+          if(F2LBtnStylingArray.length > 0){
+            F2Lreflection(verticalEdgeName[0])
+          }
           break;
       }
+
+
+function F2Lreflection(edgeName){
+console.log('edge name')
+console.log(edgeName)
+  // only if the styling array has elements; because that means a scramble has been executed
+
+    // algorithm to reflect the F2L
+    let reflectionAlgo = []
+if(edgeName.includes('Back-Left')){
+  reflectionAlgo = [...BLinv]
+}else if(edgeName.includes('Front-Left')){
+  reflectionAlgo = [...FLinv]
+}else if(edgeName.includes('Front-Right')){
+  reflectionAlgo = [...FRinv]
+}else if(edgeName.includes('Back-Right')){
+  reflectionAlgo = [...BRinv]
+}
+
+    console.log(reflectionAlgo)
+    // dictate styling
+    orientationStyling()
+    // scramble the F2L to reflection
+    algorithmExecution(reflectionAlgo)
+  
+
+}
+
 
 // function for changing button styling, depending on orientation of F2L pair
 function orientationStyling(edge){
   console.log('changing button style')
   console.log('styling array entry')
 
-if(F2LBtnStylingArray.length > 0)
-console.log(F2LBtnStylingArray[0])
-let buttonColor = F2LBtnStylingArray[0].style.backgroundColor
-  if(buttonColor == initialBtnColor ){
-    F2LBtnStylingArray[0].style.backgroundColor = 'red'
-  }
-  else{
-    console.log('color is red')
-    F2LBtnStylingArray[0].style.backgroundColor = initialBtnColor
-  }
+if(F2LBtnStylingArray.length > 0){
+  console.log(F2LBtnStylingArray[0])
+  console.log(inversionBtn)
+  let ScrambleButtonColor = F2LBtnStylingArray[0].style.backgroundColor
+  let reflectBtnColor = inversionBtn.style.backgroundColor
+    if(ScrambleButtonColor == initialBtnColor ){
+      F2LBtnStylingArray[0].style.backgroundColor = 'red'
+    }
+    else{
+      console.log('color is red')
+      F2LBtnStylingArray[0].style.backgroundColor = initialBtnColor
+    }
+  
+    if(reflectBtnColor == initialBtnColor ){
+      inversionBtn.style.cssText = reflectionStyle
+    }else if(reflectBtnColor == 'red'){
+      
+      inversionBtn.style.cssText = originalF2LConfigStyle
+    }
+
+
+
+
+}
+
 }
 
   }, 200);
@@ -1477,13 +1546,19 @@ let buttonColor = F2LBtnStylingArray[0].style.backgroundColor
 
 
 
+
+
+
+
+
+
+
+
 const changeCubeState = (clickedButton) =>{
   let stateButton = clickedButton
   
   switch(stateButton){
-    case 'scramble': console.log('scrambling cube.....')
-    
-    algorithmExecution(scramble3)
+    case 'scramble': console.log('no function for this button.....')
     break;
     case 'solve': console.log('solving cube...')
 
@@ -1499,8 +1574,11 @@ const changeCubeState = (clickedButton) =>{
 
     break;
     default: // reset button was clicked
-    paraOutput.textContent = ''
+    paraOutput.textContent = 0
     renderCube(resetCube, 'update')
+  
+   
+
 
   }
 }
@@ -1511,6 +1589,44 @@ cubeStateBtns.forEach(button =>{
     changeCubeState(e.target.id)
 })
   })
+
+
+  // scrambler
+  function newScramble(id){
+    movesPara.textContent = 0;
+    let scrambleArray;
+    switch(id){
+case 'six_a':
+scrambleArray = scramble6a
+break;
+case 'six_b':
+  scrambleArray = scramble6b
+break;
+case 'six_c':
+  scrambleArray = scramble6c
+break;
+case 'ten_a':
+  scrambleArray = scramble10a
+break;
+case 'ten_b':
+  scrambleArray = scramble10b
+break;
+case 'ten_c':
+  scrambleArray = scramble10c
+break;
+case 'fftn_a':
+  scrambleArray = scramble15a
+break;
+case 'fftn_b':
+  scrambleArray = scramble15b
+break;
+case 'fftn_c':
+  scrambleArray = scramble15c
+break;
+
+    }
+    algorithmExecution(scrambleArray)
+  }
 
   // function to input scramles.  Will not allow manual input, since there is too much room for error; so will continue to use button elements for moving the cube manually which will probably not be needed eventually.  
 
@@ -1599,8 +1715,11 @@ console.log(absentCrossPiecesArray)
 
 // variable for the number of edge pieces on the down layer that do not are not part of the cross
 let fullyUnsolvedCrossPieces = absentCrossPiecesArray.length
+console.log('fullyUnsolvedCrossPieces')
+console.log(fullyUnsolvedCrossPieces)
     if(fullyUnsolvedCrossPieces < 4){ // if there are less than four fully unsolved cross pieces on the down layer, then at least one of the edges is a cross piece so the piece can be solved or pieces can be permuted relative to each other if more than one piece exists
-
+      console.log('orientedCrossPieces')
+      console.log(orientedCrossPieces)
       if(orientedCrossPieces > 0){
         switch(orientedCrossPieces){
           case 1: // since only one piece is oriented correctly, leave it as it is, since the next piece will be permuted relative to the existing oriented cross piece. 
@@ -1608,7 +1727,7 @@ let fullyUnsolvedCrossPieces = absentCrossPiecesArray.length
           checkCrossPieceMidLayer()
           break;
           case 2: // if two cross pieces are correctly oriented
-  
+  console.log('two cross pieces')
         // GET master cross piece side colour
           let masterColor = orientedCrossEdgeArray[0]['cross_piece'][1]
         // GET SIDE-COLOR OF SECOND CROSS PIECE
@@ -1623,13 +1742,24 @@ let fullyUnsolvedCrossPieces = absentCrossPiecesArray.length
           
           let downRotations = -1 // using minus one just as a dummy number to be updated in the below condition
   
+          console.log('masterColor')
+          console.log(masterColor)
+          console.log('color2')
+          console.log(color2)
+          console.log('masterIndex')
+          console.log(masterIndex)
+          console.log('color2Index')
+          console.log(color2Index)
+          console.log('edgeName')
+          console.log(edgeName)
+
   if(masterColor  == 'o'){ // master is ORANGE
   // DETERMINE SECOND PIECE COLOUR
   if(color2 == 'g'){ // colour 2 is 'GREEN'
     downRotations = 3 // green is three clockwise rotations away from orange
   }else if(color2 == 'r'){ // colour is RED 
     downRotations = 2 // red is two clockwise rotations away from orange
-  }else{ // the remaining colour is be BLUE
+  }else if(color2 == 'b'){ // the remaining colour is be BLUE
     downRotations = 1 // blue is one rotation away from orange
             }
   }else if(masterColor == 'b'){ // colour is BLUE
@@ -1660,8 +1790,12 @@ let fullyUnsolvedCrossPieces = absentCrossPiecesArray.length
       downRotations = 1
     }
   }
-  // execute function to  permute two oriented cross pieces on the down layer,  
+
+  console.log(masterIndex, color2Index, downRotations, edgeName)
   permuteTwoCrossEdges(masterIndex, color2Index, downRotations, edgeName)
+  // execute function to  permute two oriented cross pieces on the down layer,  
+
+
   break;
   case 3:
     // clear permutations array for new down layer confuguration
@@ -2015,7 +2149,8 @@ console.log(array)
 
 // PERMUTE TWO CROSS PIECES
 function permuteTwoCrossEdges(A, B, permuteDistance, edge_name){
-  
+  console.log('incoming parameters for 2 cross pieces')
+  console.log(A, B, permuteDistance, edge_name)
   // 'permuted' variable gives index position where correctly permuted 'B' sits relative to 'A'
   let permuted = (A + permuteDistance)%4; // this will give a number between 0 and 3
   // variable for forward rotations to correct permuted position of B
@@ -2025,7 +2160,7 @@ function permuteTwoCrossEdges(A, B, permuteDistance, edge_name){
   
   let rawRotation;
   if(B === permuted){
-
+console.log('permuted')
    // as there are only correctly oriented pieces in the D-layer and they are solved, check for cross pieces on the mid layer. 
 
 
@@ -2037,7 +2172,7 @@ function permuteTwoCrossEdges(A, B, permuteDistance, edge_name){
   }
   }else{ // piece B is not permuted correctly relative to piece A: find the distance between the correct permutation position and position of 'B'
 rawRotation = permuted - B
-
+console.log(' not permuted')
 
 // if the rotation direction is negative value
 if(rawRotation < 0){
@@ -2095,10 +2230,11 @@ switch(edge_name){
 // send algorithm to algorithm execution function
 algoArray = [firstMove, secondMove, thirdMove]
     // check result
+  algorithmExecution(algoArray)
 
     setTimeout(() => {
       // whenever the current function executes, it's because two correctly oriented cross pieces were found on the down layer.  So the handle full cross is not necessary here because this function would not run if there are more than two solved cross pieces - what needs to happen is that the mid layer needs to be checked after two pieces have been permuted. 
-      checkCrossPieceMidLayer
+      checkCrossPieceMidLayer()
     }, 7000);
 
 
@@ -4478,19 +4614,57 @@ pairObj['solved_edge'] = true // matching edges
 // if the face is PARALLEL
 
 
+
+// ISSUE FOUND - when the axis is 'z' for the white piece of the corner. The rules to apply depend on which corner the piece is on.  Opposite corners work the same, but adjacent corners have rules that are reversed. 
+
          // trying a different approach - 
          if(edgeZero == cornerOne && edgeOne == cornerTwo){
-if(isParallelToFace === true){
-  pairObj['solved_edge'] = false
-}else{
-pairObj['solved_edge'] = true
-}
-         }else if(edgeZero == cornerTwo && edgeOne == cornerOne){
-          if(isParallelToFace === true){
-          pairObj['solved_edge'] = true
-          }else{
-            pairObj['solved_edge'] = false
+// rules for indexs 0 and 2
+          if(pairObj['index_of_corner'] === 0 || pairObj['index_of_corner'] === 2){
+            if(isParallelToFace === true){
+              pairObj['solved_edge'] = false // WRONG AGAIN 
+              }else{
+                pairObj['solved_edge'] = true // wrong for the case ZPPT
+              }
+
+
+
+// rules for indexes 1 and 3
+          }else if(pairObj['index_of_corner'] === 1 || pairObj['index_of_corner'] === 3){
+            if(isParallelToFace === true){
+              pairObj['solved_edge'] = true // WRONG AGAIN 
+              }else{
+                pairObj['solved_edge'] = false // wrong for the case ZPPT
+              }
+
           }
+
+         }else if(edgeZero == cornerTwo && edgeOne == cornerOne){
+
+
+    // rules for indexs 0 and 2
+    if(pairObj['index_of_corner'] === 0 || pairObj['index_of_corner'] === 2){
+      if(isParallelToFace === true){
+        pairObj['solved_edge'] = true // WRONG AGAIN 
+        }else{
+          pairObj['solved_edge'] = false // wrong for the case ZPPT
+        }
+
+
+// rules for indexes 1 and 3
+          }else if(pairObj['index_of_corner'] === 1 || pairObj['index_of_corner'] === 3){
+            if(isParallelToFace === true){
+              pairObj['solved_edge'] = false // WRONG AGAIN 
+              }else{
+                pairObj['solved_edge'] = true // wrong for the case ZPPT
+              }
+
+          }
+
+
+
+
+     
          }
   }
 
@@ -4660,7 +4834,7 @@ if(isParallelBoolean === true){
       switch(naturalPosition){
         case 0: algorithmArray = ['L`', 'B', 'L', 'B`']
           break;
-          case 1: algorithmArray = ['L`', 'U`', 'L', 'U2', 'L`', 'U', 'L2', 'F`', 'L', 'F']
+          case 1: algorithmArray = [F, UP, FP, U2, LP, UP, L]
             break;
             case 2: algorithmArray = ['R`', 'F', 'R', 'F`']
               break;
@@ -4668,6 +4842,8 @@ if(isParallelBoolean === true){
       algorithmArray = ['R`', 'U`', 'R', 'U2', 'R`', 'U', 'R2', 'B`', 'R`', 'B']
       }
       
+
+
       
       }else{ // solved edge is FALSE
       // SWITCH CORNER INDEXES
@@ -4726,7 +4902,7 @@ if(isParallelBoolean === true){
         switch(naturalPosition){
           case 0: algorithmArray = ['B', 'U', 'L', 'U`', 'L`', 'B`', 'L', 'U`', 'L`']
             break;
-            case 1: algorithmArray = ['L', 'U', 'R', 'U`', 'R`', 'L`', 'R', 'U`', 'R`']
+            case 1: algorithmArray = [F, U, FP, U, LP, U, L2, FP, LP, F]
               break;
               case 2: algorithmArray = ['F', 'U', 'R', 'U`', 'R`', 'F`', 'R', 'U`', 'R`']
                 break;
@@ -4782,7 +4958,7 @@ if(solvedPieces < 4){
   // test OLL algo for scramble 3
   console.log('test OLL algo')
   // algorithmExecution([U,F,R,U,RP,UP,FP])
-  
+  searchUpperCrossPieces()
  
 }
 }, algorithmDuration);
@@ -4792,6 +4968,101 @@ if(solvedPieces < 4){
 }, 2000);
   }
   
+
+function searchUpperCrossPieces(){
+  let tempAlgo;
+  let totalOriented = 0;
+  let orientedIndexes = []
+  let sumOfIndexes = 0;
+  let cornerAlgo = [L, F, RP, F, R, F2, LP]
+  let lineAlgo = [F, R, U, RP, UP, FP]
+  upLayerEdges.forEach((edge, index) =>{
+
+    if(edge[0] == 'y'){
+totalOriented ++
+orientedIndexes.push(index)
+    }else{
+      totalOriented = totalOriented
+    }
+  } )
+  
+if(totalOriented > 0){
+
+  if(orientedIndexes.length === 4){
+    console.log('four cross pieces on up layer;orient corners')
+    console.log(orientedIndexes)
+  }else{
+
+sumOfIndexes = orientedIndexes.reduce((a,b) => a + b)
+console.log('sum of indexes')
+console.log(sumOfIndexes)
+
+switch(sumOfIndexes){
+  case 1: tempAlgo = cornerAlgo
+  console.log('edges: 0 and 1')
+    break;
+    case 2: tempAlgo = [U, ...lineAlgo]
+    console.log('edges: 0 and 2')
+      break;
+      case 3: 
+      if(orientedIndexes.includes(1)){
+        console.log('edges: 1 and 2')
+        tempAlgo = [U, ...cornerAlgo]
+
+      }else{
+        console.log('edges: 0 and 3')
+        tempAlgo = [UP, ...cornerAlgo]
+      }
+      break;
+      case 4: 
+      console.log('edges: 1 and 3')
+      tempAlgo = lineAlgo
+        break;
+        case 5: 
+        tempAlgo = [U2, ...cornerAlgo]
+        break;
+
+}
+
+
+  }
+}else{
+  // dot algo
+  console.log('no edges oriented')
+  tempAlgo = [...lineAlgo, U2, ...cornerAlgo]
+}
+
+setTimeout(() => {
+  console.log('last layer cross oriented')
+}, tempAlgo.length*1600);
+algorithmExecution(tempAlgo)
+ 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 let executionArrayAll = []
 function algorithmExecution(array){

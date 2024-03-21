@@ -18,9 +18,18 @@
     height: 50px;
 }
 
+.test-scrambles{width: 45px; height: 45px; margin-bottom: 5px;}
+.six-moves{color: white; background-color: rgb(31, 157, 189);}
+.ten-moves{color: white; background-color: rgb(240, 76, 199);}
+.fifteen-moves{color: white; background-color: rgb(236, 177, 99);}
+
+#inv-btn{
+    width: 150px; height: 50px;  font-weight: bold;   
+}
+
 #solve-f2l{width: 150px; height: 50px;
 color: rgb(255, 255, 255);
-background-color: rgb(117, 146, 241);
+background-color: rgb(243, 47, 33);
 }
 .face-rotate-btn, .face-rotate-prime-btn, .cube-rotate-btn, .cube-rotate-prime-btn, .face-double-rotate-btn, .f2l-btn{width: 50px;  height: 50px; font-weight: bold;}
 .cube-state-btn{width: 150px; height: 50px; font-weight: bold; font-size: 18px;}
