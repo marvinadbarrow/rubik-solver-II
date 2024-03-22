@@ -1247,6 +1247,14 @@ let scramble15a = [RP, F2, U2, FP, RP, F2, UP, R2, BP, L2, UP, LP, R, D, LP];  /
 let scramble15b = [L, R2, U, FP, B, LP, BP, U2, B, R, FP, R, L2, F, R2];   // solves to F2L
 let scramble15c = [F2, U2, LP, BP, FP, R, U2, B, UP, L, DP, B2, L2, B, DP];  // solves to F2L
 
+ // SEVEN ALGORITHMS FOR 'ORIENT LAST  LAYER CORNERS'
+ let antiSune = [R, U2, RP, UP, R, UP, RP]
+ let sune = [R, U, RP, U, R, U2, RP]
+ let buggy = [R, U2, RP, UP, R, U, RP, UP, R, UP, RP]
+ let dragster = [R, U2, R2, UP, R2, UP, R2, U2, R]
+ let spider = [FP, L, F, RP, FP, LP, F, R]
+ let beetle = [L, F, RP, FP, LP, F, R, FP]
+ let superman = [R, U2, RP, UP, RP, F, R, F2, LP, U, L, F]
 
 
 // lister for F2L-only scramble buttons
@@ -4958,7 +4966,7 @@ if(solvedPieces < 4){
   // test OLL algo for scramble 3
   console.log('test OLL algo')
   // algorithmExecution([U,F,R,U,RP,UP,FP])
-  searchUpperCrossPieces()
+  assessOLLEdges()
  
 }
 }, algorithmDuration);
@@ -4969,7 +4977,7 @@ if(solvedPieces < 4){
   }
   
 
-function searchUpperCrossPieces(){
+function assessOLLEdges(){
   let tempAlgo;
   let totalOriented = 0;
   let orientedIndexes = []
@@ -4977,7 +4985,7 @@ function searchUpperCrossPieces(){
   let cornerAlgo = [L, F, RP, F, R, F2, LP]
   let lineAlgo = [F, R, U, RP, UP, FP]
   upLayerEdges.forEach((edge, index) =>{
-
+// edge is oriented if 'y' is at index zero of the corner array
     if(edge[0] == 'y'){
 totalOriented ++
 orientedIndexes.push(index)
@@ -4985,40 +4993,43 @@ orientedIndexes.push(index)
       totalOriented = totalOriented
     }
   } )
-  
+  // if there is at least one oriented edge
 if(totalOriented > 0){
 
+  // if four are oriented then move onto orienting corners
   if(orientedIndexes.length === 4){
     console.log('four cross pieces on up layer;orient corners')
     console.log(orientedIndexes)
   }else{
-
+// number of oriented edges is 2; there cannot be 1 or 3 oriented edges because that is a parity case which doesn't exist for cubes with an odd number of rows and columns.  Only 0, 2 and 4 last layer edges can be correctly oriented when the rest of the cube is solved up to F2L - get the sum of the indexes of the oriented edges
 sumOfIndexes = orientedIndexes.reduce((a,b) => a + b)
 console.log('sum of indexes')
 console.log(sumOfIndexes)
-
+//NOTE: 
 switch(sumOfIndexes){
   case 1: tempAlgo = cornerAlgo
-  console.log('edges: 0 and 1')
+  console.log('edges: 0 and 1') // only indexes 0 and 1 can sum to 1 - 
     break;
     case 2: tempAlgo = [U, ...lineAlgo]
-    console.log('edges: 0 and 2')
+    console.log('edges: 0 and 2') // only indexes 0 and 2 can sum to 2 - 
       break;
       case 3: 
+              // there are two combinations of indexes that can sum to 3; indexes 1 and 2, and indexes 0 and 3.  Given that, in this switch case, only two edges are oriented, the oriented eges are either on index 1 and 2, or on indexes 0 and 3; all different numbers.  So it's just enough to check for one of the numbers in the indexes array, and because they come in pairs, if one number is included, then its pair is included; and you have both numbers.  Check if index 1 is included. 
       if(orientedIndexes.includes(1)){
-        console.log('edges: 1 and 2')
+        console.log('edges: 1 and 2') // 1 is included in the indexes so the oriented edges are 1 and 2
         tempAlgo = [U, ...cornerAlgo]
 
       }else{
-        console.log('edges: 0 and 3')
-        tempAlgo = [UP, ...cornerAlgo]
+    console.log('edges: 0 and 3')//1 is not included in the indexes so the oriented edges are 0 and 3
+    tempAlgo = [UP, ...cornerAlgo]
       }
       break;
       case 4: 
-      console.log('edges: 1 and 3')
+      console.log('edges: 1 and 3')  // only indexes 1 and 3 can sum to 4 - 
       tempAlgo = lineAlgo
         break;
         case 5: 
+        console.log('edges: 2 and 3')  // only indexes 2 and 3 can sum to 4 - 
         tempAlgo = [U2, ...cornerAlgo]
         break;
 
@@ -5027,13 +5038,14 @@ switch(sumOfIndexes){
 
   }
 }else{
-  // dot algo
+  // Total oriented edges variable value is zero; none of the edges are oriented so execute the combination algorithm to orient them all
   console.log('no edges oriented')
   tempAlgo = [...lineAlgo, U2, ...cornerAlgo]
 }
 
 setTimeout(() => {
   console.log('last layer cross oriented')
+  assessOLLCorners()
 }, tempAlgo.length*1600);
 algorithmExecution(tempAlgo)
  
@@ -5042,7 +5054,319 @@ algorithmExecution(tempAlgo)
 
 
 
+// gather / oriented non-oriented corner information 
+function assessOLLCorners(){
+  console.log('orienting LAST LAYER CORNERS')
+// check for oriented corner pieces
+let orientedIndexes = []
+let facetIndexes = []
+let nonOrientedIndexes = []
+let algoArray;
+let sumOfCornerIndexes;
+let sumOfNonOrientedIndexes
 
+  upLayerCorners.forEach((corner, index) =>{
+    if(corner[0] == 'y'){ // the facet is oriented
+orientedIndexes.push(index)
+    }else{
+      nonOrientedIndexes.push(index)
+    }
+  })
+console.log(orientedIndexes)
+console.log(nonOrientedIndexes)
+  // switch the number of corners 
+  switch(orientedIndexes.length){
+    case 0: // no corners are oriented.  This is either the buggy configuration, where all yellow facets face are perpendicular to the same axis, y or x; or the dragster configuration with two facets perpendicular to x and the other two perpendicular to y. A temporary array is used to store the orientation of each corner piece.  For each corner piece,  if the piece is y-facing then push '1' to a temporary array, otherwise '2' should be pushed. This will return an array with 4 elements, where each element describes the x/y orientation of the corner piece at that index. All the possible array configurations are unique, and can therefore be used to determine which rotation is needed for the solving position and which of the two algorithms to execute.   If all the numbers in the array are the same, then all four corner pieces are perpendicular to the same axis, and this indicates the buggy case. If all the values in the array are '1' then the yellow facets are all 'y' facing, execute the buggy algorithm; no rotation is needed. Otherwise U rotate and execute the buggy algorithm.  If the array contains both values 1 and 2, this indicates the dragster case, and there are four unique possibilities for the array configuration; one can be solved immediately with no need for rotation,  and the other three possibilities need either U, U2 or U' before the dragster algorithm is executed. 
+upLayerCorners.forEach(corner =>{
+  if(corner[1] == 'y'){
+    facetIndexes.push(1)
+  }else{
+    if(corner[2] == 'y'){
+      facetIndexes.push(2)
+    }
+  }
+})
+
+solveBuggyDragster(facetIndexes)
+
+    break;
+    case 1: // three pieces are not oriented; if two pieces are perpendicular to y, then the third will be perpendicular to x, and vice versa.  
+
+    // loops through the up layer corners, and ignoring the index of the oriented piece, for each corner piece, if the piece is y-facing then push '1' to a temporary array, otherwise '2' should be pushed.  This will return an array with 3 elements, where each element describes the x/y orientation of the corner piece at that index.  There will be six different arrays with combinations of the numbers 1 and 2, and two extra which repeat the combinations 212 and 121.  For the repeating combinations, the index of the corner piece will dictate whether the case is sune or anti-sune (so a variable for the index of the oriented piece should be used).  For all other cases, three are sune and three anti-sune and each case is unique and indirectly indicates which index the oriented corner piece sits at and therefore what rotation is needed before the sune or anti-sune algorithm can be executed; they are all executed from vertical edge index position 2. 
+    upLayerCorners.forEach((corner, indexOfCorner) =>{
+      if(corner[1] == 'y'){
+        facetIndexes.push(1)
+      }else if(corner[2] == 'y'){
+        facetIndexes.push(2)
+      }else{
+        facetIndexes.push('x')
+        console.log('oriented corner piece to be ignored')
+      }
+    })
+
+    // this will give eight unique positions which comprise sune and antisune cases at all orientations. Maybe it's better to send the array onto a function to solve sune and anti sune
+    solveSuneAntiSune(facetIndexes)
+
+      break;
+      case 2: 
+            // the sum of oriented corner piece indexes is odd for the beetle and superman case.  The sum of the non oriented corner indexes produce 3 values; 1: both corners are on the left face, 5: both corners are on the right face, 3: the corners are either on the back face or or the front face.  then a condition can be used to find out the direction. If one of the corner pieces is at the zero index, then the indexes are 0 and 3 and the case is facing the back face and if one ofthe corner pieces is 1, then the case if facing the front face. Once the face orientation is figured out, then the orientation of the corner pieces will be used to determine the exact case.  Example: if the corners are y-facing and the case faces front or back, then it's the superman case, the beetle case faces left or right when the non-oriented corner pieces are y-facing. the x/y facing orientation of the non oriented corner pieces and the direction of the case are also used to work out what rotation, if any is needed prior to executing the algorithm specific to the OLL case. 
+
+      
+      // there are three possible OLL cases for two oriented corner pieces. The Superman, The Beetle and the Spider - for the spider case, the oriented corner pieces are opposite each other, which means that the indexes are either 1 and 3, or 0 and 4. The sum of these pairs of numbers differ and can therefore be used to determine the diagonal orientation of the entire case.  This isn't enough to give the exact orientation because the case could be facing in one of two opposite directions; the x/y facing property of each of the non oriented corner pieces changes when the piece is facing the opposite diagonal direction. So, for example, if the oriented corner pieces are on indexes 1 and 3, if the piece at index 0 is y-facing, then the case is pointed in the back-right direction, otherwise if the piece is x-facing, the case is pointed in the front-left direction; for the case where corner pieces are on indexes 0 and 2, if the piece at index 1 is y-facing, then the case is pointed in the front-right direction, otherwise if the piece is x-facing, the case is pointed in the back left direction; The execution of the algorithm happens on index 2 when the spider is pointing in the front right direction - note, the sum of the oriented corners will produce only an even number for the spider case; so the sum can be used to distinguish between the spider case, and the other two (superman and beetle)
+ sumOfCornerIndexes = orientedIndexes.reduce((a, b) => a + b)
+ sumOfNonOrientedIndexes = nonOrientedIndexes.reduce((a, b) => a + b)
+ if(sumOfCornerIndexes%2 === 0){
+  // the oriented pieces are on indexes 0 and 2 or 1 and 3, this is a spider case, 
+
+// fariable for axis direction of y facet on non oriented corner
+     let nonOrientedCorner
+      // variable for absolute direction of spider
+      let diagonalDirection;
+
+
+  if(sumOfCornerIndexes === 4){
+    // spider is facing back left or front right - oriented indexes are 0 and 2
+
+          // check axis orientation of index 0
+           nonOrientedCorner = upLayerCorners[0]
+
+    if(nonOrientedCorner[1] == 'y'){
+      diagonalDirection = 'back-right'
+    }else{
+      diagonalDirection = 'front-left'
+    }
+
+              // check axis orientation of index 0
+              nonOrientedCorner = upLayerCorners[1]
+
+              if(nonOrientedCorner[1] == 'y'){
+                diagonalDirection = 'back-left'
+              }else{
+                diagonalDirection = 'front-right'
+              }
+solveSpider(diagonalDirection)
+
+  }else{
+    // sum of indexes is 2
+    //spider is facing front left or back right - oriented indexes are 1 and 3 
+  }
+ }else{
+  // this is a beetle or superman case; the sum of corner indexes is odd, 5, 3, 3 or 1
+
+  // variable for face direction
+  let faceDirection;
+  let xyOrientation;
+  if(sumOfNonOrientedIndexes === 5){
+    faceDirection = 'right'
+  }else  if(sumOfNonOrientedIndexes === 1){
+    faceDirection = 'left'
+  }else{ // sum is 3 - determine direction (could be back facing or front facing)
+
+    if(nonOrientedIndexes.includes(0)){ // one of the non oriented corners is at zero index: 0 + 3 = 3, the other index is 3 so the case is back facing
+      faceDirection = 'back'
+    }else{
+      faceDirection = 'front'
+    }
+  }
+
+// since we have the indexes of the non oriented pieces, they can be used to determine the x/y facing orientation of the 'y' facet.  since they face the same way, only the first available corner in the array need be examined
+let nonOrientedCorner = upLayerCorners[nonOrientedIndexes[0]] // use the first index
+if(nonOrientedCorner[1] == 'y'){
+  xyOrientation = 'y-axis'
+}else if(nonOrientedCorner[2] == 'y'){
+  xyOrientation = 'x-axis'
+}
+
+// send face direction , axis orientation
+solveSupermanBeetle(faceDirection, xyOrientation)
+ }
+
+
+
+        break;
+        case 4: 
+        // because this kind of cube has no parity issues, there cannot be 3 oriented last layer corner pieces and one not oriented piece. So case 3 is ignored.  when all four are oriented, then move onto permute last layer
+        assessLastLayerPermutation()
+        break;
+  }
+}
+
+
+function solveSuneAntiSune(array){
+  console.log('sune solver')
+let tempAlgo = []
+  // join all the elements of the array; because it contains an 'x' the result will be a string. 
+  let sunePermutation = array.join('')
+  // switch the permutation
+  // SUNES
+  switch(sunePermutation){
+    case 'x212':
+      tempAlgo = [UP, ...sune]
+      break;
+      case '121x':
+        tempAlgo = [U2, ...sune]
+        break;
+        case '1x12':
+          tempAlgo = [...sune]
+          break;
+          case '12x2':
+            tempAlgo = [U, ...sune]
+            break;
+
+
+// ANTI-SUNES
+    case '212x':
+      tempAlgo = [...antiSune]
+      break;
+      case 'x121':
+        tempAlgo = [U, ...antiSune] 
+        break;
+        case '21x1':
+          tempAlgo = [UP, ...antiSune]
+          break;
+          case '2X21':
+            tempAlgo = [U2, ...antiSune]
+            break;
+  }
+
+  algorithmExecution(tempAlgo)
+}
+
+
+function solveBuggyDragster(array){
+  console.log('buggy dragster solver')
+let algoArray = []
+      // check if the array includes both values 1 and 2
+      if(array.includes(1) && array.includes(2)){
+        console.log('this is the dragster case')
+        // to examine the permutation, join and stringify the elements of the array, use a condition to determine the permutation and execute the associated algorithm, executing an up layer rotation first, if required. 
+        let stringPermutation = array.join('').toString()
+        console.log(stringPermutation)
+        if(stringPermutation == '2112'){
+          algoArray = [...dragster]
+        }else if(stringPermutation == '1221'){
+          algoArray = [U2, ...dragster]
+        }else if(stringPermutation == '2211'){
+          algoArray = [U, ...dragster]
+        }else if(stringPermutation == '1122'){
+          algoArray = [UP, ...dragster]
+        }
+      }else{
+        // all array elements are of the same value - get the value of any of the elements
+        let directionElement = array[0]
+        if(directionElement === 1){
+          // the yellow facets are y-facing; the algorithm can be executed without rotating the up layer
+          algoArray = dragster;
+        }else{
+          // the yellow facet are x-facing; one U rotation is required before the execution of the algorithem, so combine a U rotation with the dragster algorithm
+          algoArray = [U, ...dragster]
+        }
+      }
+
+algorithmExecution(algoArray)
+}
+
+
+function solveSupermanBeetle(face, axis){
+  console.log('superman beetle solver')
+  // switch the face, then if/else the axis
+  let algoArray = []
+
+  switch(face){
+    case 'front':
+      if(axis == 'x-axis'){
+// front facing beetle
+console.log('front facing beetle')
+algoArray = [U, ...beetle]
+      }else{
+        // front facing superman
+        console.log('front facing superman')
+        algoArray = [...superman]
+      }
+      break;
+      case 'back':
+      if(axis == 'x-axis'){
+// back facing beetle
+console.log('back facing beetle')
+algoArray = [UP, ...beetle]
+      }else{
+        // back facing superman
+        console.log('back facing superman')
+        algoArray = [U2, ...superman]
+      }
+      break;
+
+
+
+      case 'left':
+        if(axis == 'x-axis'){
+          // left facing superman
+          console.log('left facing superman')
+          algoArray = [UP, ...superman]
+        }else{
+            // left facing beetle
+            console.log('left facing beetle')
+            algoArray = [...beetle]
+        }
+        break
+        case 'right':
+        if(axis == 'x-axis'){
+          // right facing superman
+          console.log('right facing superman')
+          algoArray = [U, ...superman]
+        }else{
+            // right facing beetle
+            console.log('right facing beetle')
+            algoArray = [U2, ...beetle]
+        }
+        break
+  }
+
+  algorithmExecution(algoArray)
+}
+
+function solveSpider(cornerName){
+  console.log('spider solver')
+  // spider needs to face front left for algo to work
+
+  let algoArray = []
+  // switch corner name
+  switch(cornerName){
+    case 'back-left': algoArray = [UP, ...spider]
+      break;
+      case 'front-left': algoArray = [...spider]
+      break;
+      case 'front-right': algoArray = [U, ...spider]
+      break;
+      case 'back-right': algoArray = [U2, ...spider]
+      break;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function assessLastLayerPermutation(){
+
+}
 
 
 
