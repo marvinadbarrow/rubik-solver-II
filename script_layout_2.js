@@ -80,7 +80,6 @@ faceElements.forEach(button =>{
   })
   })
 
-console.log(faceElements)
 
 
 // CHANGING CUBE STATE - RESET, SOLVE OR SCRAMBLE CUBE
@@ -155,6 +154,18 @@ for the up and down layer array subarrays, the zero index element represents the
 
 for the mid layer array, the zero index element represents the edge facet on the front or back end of the layer, and the element at index '1' represents the facet on the right or left 
 */
+
+// object holding conditions of different stages after they are tested. 
+let stageConditionObj = {
+  'cross': [], // just the cross pieces
+  'F2L': [], // contains objects holding corner and edge F2L pieces
+  'OLL_edges': [], // just the last layer edges
+  'OLL_corners': [],
+  'PLL_corners': [],
+  'PLL_edges': [], 
+  'completed_stage':'', 
+  'incomplete_stage':'', 
+}
 // records last layer edges
 let upLayerEdges = []
 // records mid layer edges
@@ -1575,7 +1586,10 @@ const changeCubeState = (clickedButton) =>{
       movesPara.textContent = 0;
       // clear solution array so scramble algorithm is removed and purely solve algorithms are recorded
       solutionArray = []
-      checkCrossDownLayer()
+// before searching for pieces, a cube check should be done, to assess the condition of the cube to see if any steps can be skipped. If the cross stage is already complete, then there's no need to check for the number of down layer cross pieces; that stage can be skipped completely and the F2L stage can be skppped.  If the F2L is complete then skip that and initiate OLL, and if the OLL is complete, skip to the PLL state, and if that is complete use then the cube may have been scrambled, but in a way that the scramble was simple and resulted in a solved; so the user can be alerted of the cube situation.  
+
+// test a stage, and if it passes, test the next stage.  If the test fails to return a complete stage, then send the parts of the stage that are complete to the appropriate array containing details of completed parts of the stage.  Then initiate the stage; the complete parts of the stage will be avoided so as not to solve already solved sections of the cube.  I think this is already done with down layer cross pieces in that a check is immediately made to assess their relative positions and if all four pieces are oriented and permuted correctly relative to each other then the F2L stage is initiated.  I'll try not to duplicate these processes.  
+      confirmCross()
     }else{
       alert('cube not scrambled: no moves executed yet; scramble cube before solving')
     }
@@ -3342,7 +3356,9 @@ algorithmExecution(tempAlgArray)
   console.log(`cross solved in ${movesPara.textContent} moves`)
 setTimeout(() => {
   // EXECUTE F2L STAGE, by searching for first layer corners, with an empty array as parameter.  This is because F2L corners have yet to be solved, so there is no need to check for already solved pairs to avoid disrupting.  
-  findF2LcornersFirstLayer([])
+  // findF2LcornersFirstLayer([])
+
+confirmCross()
 }, 1500);
 
   }// tested and working
@@ -3578,18 +3594,6 @@ console.log(fullCornerOjbect)
 
 
 }
-
-
-
-/*
-
-
-SPARE MID LAYER REQUIREMENTS
-
-((edge[0] == cornerObject['edge_requirements']['default_edge'][0] && edge[1] == cornerObject['edge_requirements']['default_edge'][1]) || (edge[1] == cornerObject['edge_requirements']['default_edge'][0] && edge[1] == cornerObject['edge_requirements']['flipped_edge'][1]))
-
-
-*/
 
 
 
@@ -4957,16 +4961,17 @@ setTimeout(() => {
 setTimeout(() => {
 // here we decide what to do once the algorithm is complete. If solved edges are less than 4 execute the function again
 let solvedPieces = solvedF2LIndexesArray.length
-console.log('solved pieces')
-console.log(solvedPieces)
+
 if(solvedPieces < 4){
+  console.log('SEARCHING FOR FURTHER F2L PIECES')
   findF2LcornersFirstLayer(solvedF2LIndexesArray)
+
 }else{
-  console.log('F2L stage complete.  Orient Last Layer...')
-  // test OLL algo for scramble 3
-  console.log('test OLL algo')
-  // algorithmExecution([U,F,R,U,RP,UP,FP])
-  assessOLLEdges()
+  console.log('four F2L pieces in place... checking that F2L pieces are correctly placed at their natural indexes')
+    confirmF2L()
+// nextStage(currentStage)
+
+
  
 }
 }, algorithmDuration);
@@ -5043,13 +5048,34 @@ switch(sumOfIndexes){
   tempAlgo = [...lineAlgo, U2, ...cornerAlgo]
 }
 
-setTimeout(() => {
-  console.log('last layer cross oriented')
-  assessOLLCorners()
-}, tempAlgo.length*1600);
+// EXECUTE THE ALGORITHM
 algorithmExecution(tempAlgo)
+let algorithmDuration = tempAlgo.length + 1
+
+setTimeout(() => {
+confirmOLLEdges()
+}, algorithmDuration*1500);
+
  
 }
+
+
+
+function assessPLLCorners(){
+console.log('assessing PLL corners')
+
+}
+
+function assessPLLEdges(){
+console.log('assessing PLL edges')
+
+}
+
+function cubeComplete(){
+  console.log('cube is complete')
+}
+
+
 
 
 
@@ -5076,7 +5102,7 @@ console.log(orientedIndexes)
 console.log(nonOrientedIndexes)
   // switch the number of corners 
   switch(orientedIndexes.length){
-    case 0: // no corners are oriented.  This is either the buggy configuration, where all yellow facets face are perpendicular to the same axis, y or x; or the dragster configuration with two facets perpendicular to x and the other two perpendicular to y. A temporary array is used to store the orientation of each corner piece.  For each corner piece,  if the piece is y-facing then push '1' to a temporary array, otherwise '2' should be pushed. This will return an array with 4 elements, where each element describes the x/y orientation of the corner piece at that index. All the possible array configurations are unique, and can therefore be used to determine which rotation is needed for the solving position and which of the two algorithms to execute.   If all the numbers in the array are the same, then all four corner pieces are perpendicular to the same axis, and this indicates the buggy case. If all the values in the array are '1' then the yellow facets are all 'y' facing, execute the buggy algorithm; no rotation is needed. Otherwise U rotate and execute the buggy algorithm.  If the array contains both values 1 and 2, this indicates the dragster case, and there are four unique possibilities for the array configuration; one can be solved immediately with no need for rotation,  and the other three possibilities need either U, U2 or U' before the dragster algorithm is executed. 
+    case 0: // no corners are oriented.  This is either the buggy configuration, where all yellow facets are perpendicular to the same axis, y or x; or the dragster configuration with two facets perpendicular to x and the other two perpendicular to y. A temporary array is used to store the orientation of each 'NON ORIENTED' corner piece.  For each corner piece,  if the piece is y-facing then push '1' to a temporary array, otherwise '2' should be pushed. This will return an array with 4 elements, where each element describes the x/y orientation of the corner piece at that index. All the possible array configurations are unique, and can therefore be used to determine which rotation is needed for the solving position and which of the two algorithms to execute.   If all the numbers in the array are the same, then all four corner pieces are perpendicular to the same axis, and this indicates the buggy case. If all the values in the array are '1' then the yellow facets are all 'y' facing, execute the buggy algorithm; no rotation is needed. Otherwise U rotate and execute the buggy algorithm.  If the array contains both values 1 and 2, this indicates the dragster case, and there are four unique possibilities for the array configuration; one can be solved immediately with no need for rotation,  and the other three possibilities need either U, U2 or U' before the dragster algorithm is executed. 
 upLayerCorners.forEach(corner =>{
   if(corner[1] == 'y'){
     facetIndexes.push(1)
@@ -5185,51 +5211,56 @@ solveSupermanBeetle(faceDirection, xyOrientation)
 
         break;
         case 4: 
-        // because this kind of cube has no parity issues, there cannot be 3 oriented last layer corner pieces and one not oriented piece. So case 3 is ignored.  when all four are oriented, then move onto permute last layer
-        assessLastLayerPermutation()
+        // because this kind of cube has no parity issues, there cannot be 3 oriented last layer corner pieces and one not oriented piece. So case 3 is ignored.  when all four are oriented, then move onto permute last layer (after checking OLL CORNERS)
+        confirmOLLCorners()
         break;
   }
 }
 
-
+// sune and anti-sune cases
 function solveSuneAntiSune(array){
   console.log('sune solver')
-let tempAlgo = []
+let suneAlgo = []
+
+
   // join all the elements of the array; because it contains an 'x' the result will be a string. 
   let sunePermutation = array.join('')
   // switch the permutation
   // SUNES
+  console.log(sunePermutation)
   switch(sunePermutation){
     case 'x212':
-      tempAlgo = [UP, ...sune]
+      suneAlgo = [UP, ...sune]
       break;
       case '121x':
-        tempAlgo = [U2, ...sune]
+        suneAlgo = [U2, ...sune]
         break;
         case '1x12':
-          tempAlgo = [...sune]
+          suneAlgo = [...sune]
           break;
           case '12x2':
-            tempAlgo = [U, ...sune]
+            suneAlgo = [U, ...sune]
             break;
-
-
-// ANTI-SUNES
     case '212x':
-      tempAlgo = [...antiSune]
+      suneAlgo = [...antiSune]
       break;
       case 'x121':
-        tempAlgo = [U, ...antiSune] 
+        suneAlgo = [U, ...antiSune] 
         break;
         case '21x1':
-          tempAlgo = [UP, ...antiSune]
+          suneAlgo = [UP, ...antiSune]
           break;
-          case '2X21':
-            tempAlgo = [U2, ...antiSune]
+          case '2x21':
+            suneAlgo = [U2, ...antiSune]
             break;
   }
 
-  algorithmExecution(tempAlgo)
+let algorithmDuration = suneAlgo.length + 1
+  algorithmExecution(suneAlgo)
+
+  setTimeout(() => {
+confirmOLLCorners()
+  }, algorithmDuration*1500);
 }
 
 
@@ -5243,13 +5274,19 @@ let algoArray = []
         let stringPermutation = array.join('').toString()
         console.log(stringPermutation)
         if(stringPermutation == '2112'){
-          algoArray = [...dragster]
-        }else if(stringPermutation == '1221'){
-          algoArray = [U2, ...dragster]
-        }else if(stringPermutation == '2211'){
+          console.log('front facing dragster')
           algoArray = [U, ...dragster]
-        }else if(stringPermutation == '1122'){
+        }else if(stringPermutation == '1221'){
+          console.log('back facing dragster')
           algoArray = [UP, ...dragster]
+        }else if(stringPermutation == '2211'){
+          console.log('left facing dragster')
+          algoArray = [...dragster]
+        }else if(stringPermutation == '1122'){
+          console.log('right facing dragster')
+          algoArray = [U2, ...dragster]
+
+
         }
       }else{
         // all array elements are of the same value - get the value of any of the elements
@@ -5263,7 +5300,13 @@ let algoArray = []
         }
       }
 
-algorithmExecution(algoArray)
+      algorithmExecution(algoArray)
+
+      let  algorithmDuration = algoArray.length + 1
+      
+      setTimeout(() => {
+        confirmOLLCorners()
+      }, algorithmDuration*1500);
 }
 
 
@@ -5323,8 +5366,14 @@ algoArray = [UP, ...beetle]
   }
 
   algorithmExecution(algoArray)
+  // get calculation for algorithm duration 
+let  algorithmDuration = algoArray.length + 1
+setTimeout(() => {
+  confirmOLLCorners()
+}, algorithmDuration*1500);
 }
 
+// SPIDER OLL CASE
 function solveSpider(cornerName){
   console.log('spider solver')
   // spider needs to face front left for algo to work
@@ -5333,56 +5382,404 @@ function solveSpider(cornerName){
   // switch corner name
   switch(cornerName){
     case 'back-left': algoArray = [UP, ...spider]
+    console.log('back left facing spider')
       break;
       case 'front-left': algoArray = [...spider]
+      console.log('front left facing spider')
       break;
       case 'front-right': algoArray = [U, ...spider]
+      console.log('front right facing spider')
       break;
       case 'back-right': algoArray = [U2, ...spider]
+      console.log('back right facing spider')
       break;
+  }
+
+  algorithmExecution(algoArray)
+
+  let  algorithmDuration = algoArray.length + 1
+  setTimeout(() => {
+    confirmOLLCorners()
+  }, algorithmDuration*1500);
+
+
+}
+
+
+
+function preSolveCheck(stageToCheck, array){
+switch(stageToCheck){
+  // case 'cross': // cross is the first stage to be assessed
+  //   console.log('initiating pre-solve check')
+  //   stageConditionObj['completed_stage'] = 'start'
+  //   stageConditionObj['incomplete_stage'] = 'cross'
+  //   break;
+
+  case 'F2L':
+  if(array.length > 3){ // post cross check array
+    console.log('cross complete and positioned correctly, check F2L')
+    stageConditionObj['completed_stage'] = 'cross'
+    stageConditionObj['incomplete_stage'] = 'F2L'
+  }else{
+    console.log('cross INCOMPLETE...')
+    stageConditionObj['incomplete_stage'] = 'cross'
+ 
+  }
+   
+    break;
+  case 'OLL_edges': // post F2L check array
+  if(array.length > 3){
+    console.log('F2L stage is complete, check OLL edges')
+    stageConditionObj['completed_stage'] = 'F2L'
+    stageConditionObj['incomplete_stage'] = 'OLL_edges'
+  }else{
+    console.log('F2L stage INCOMPLETE...')
+    stageConditionObj['incomplete_stage'] = 'F2L'
+  }
+  
+  break;
+  case 'OLL_corners':  // post OLL edges check array
+  if(array.length > 3){
+    console.log('OLL edges stage is complete, check OLL corners')
+    stageConditionObj['completed_stage'] = 'OLL_edges'
+    stageConditionObj['incomplete_stage'] = 'OLL_corners'
+
+  }else{
+    console.log('OLL edges stage INCOMPLETE...')
+    stageConditionObj['incomplete_stage'] = 'OLL_edges'
+  }
+  
+  break;
+  case 'PLL_corners':   // post OLL corners check array
+  if(array.length > 3){
+    console.log('OLL corners stage is complete, check PLL corners')
+    stageConditionObj['completed_stage'] = 'OLL_corners'
+    stageConditionObj['incomplete_stage'] = 'PLL_corners'
+ 
+  }else{
+    console.log('OLL corners INCOMPLETE...')
+    stageConditionObj['incomplete_stage'] = 'OLL_corners'
+  }
+  
+  break;
+  case 'PLL_edges':   // post PLL corners check array
+  if(array.length > 3){
+    console.log(' PLL corners stage is complete, check PLL edges')
+    stageConditionObj['completed_stage'] = 'PLL_corners'
+    stageConditionObj['incomplete_stage'] = 'PLL_edges'
+ 
+  }else{
+    console.log('PLL corners stage INCOMPLETE...')
+    stageConditionObj['incomplete_stage'] = 'PLL_corners'
+  }
+  
+  break;
+  case 'END_OF_CHECK':   // post PLL edges check array
+  if(array.length > 3){
+    console.log(' PLL edges stage is complete, CUBE IS SOLVED')
+    stageConditionObj['completed_stage'] = 'PLL_edges'
+    stageConditionObj['incomplete_stage'] = 'none'
+   
+  }else{
+    console.log('PLL edges stage INCOMPLETE...')
+    stageConditionObj['incomplete_stage'] = 'PLL_edges'
+ 
+  }
+  break;
+
+}
+
+
+}
+
+
+
+
+
+
+function nextStage(next, current, array){
+
+console.log('next')
+console.log(next)
+console.log('current')
+console.log(current)
+console.log('array')
+console.log(array)
+
+preSolveCheck(next, array)
+ 
+
+
+ 
+
+// wait for the pre solve check to complete
+setTimeout(() => {
+
+        let completedStage = stageConditionObj['completed_stage'] 
+        let nextIncompleteStage = stageConditionObj['incomplete_stage']
+         // PRE-solve check for completed state information
+
+if(current == nextIncompleteStage){
+console.log(`current stage: ${current},  is INCOMPLETE`)
+  switch(current){
+    case 'cross': 
+    checkCrossDownLayer()
+    break;
+    case 'F2L': 
+    findF2LcornersFirstLayer([])
+    break;
+    case 'OLL_edges': 
+    assessOLLEdges()
+    break;
+    case 'OLL_corners': 
+    assessOLLCorners()
+    break;
+    case 'PLL_corners': 
+    assessPLLCorners()
+    break;
+    case 'PLL_edges': 
+    assessPLLEdges()
+    break;
+  }
+}else{
+
+
+  console.log(`current stage: ${current},  is COMPLETE`)
+ // switch the stage, and whichever is incomplete, execute the function needed to resolve the stage
+    switch(completedStage){
+      case 'cross': 
+    confirmF2L()
+    break;
+    case 'F2L': 
+    confirmOLLEdges()
+    break;
+    case 'OLL_edges': 
+    confirmOLLCorners()
+    break;
+    case 'OLL_corners': 
+    confirmPLLCorners()
+    break;
+    case 'PLL_corners': 
+    confirmPLLEdges()
+    break;
+    case 'PLL_edges': 
+    cubeComplete()
+    break;
+
+    }
+
+}
+
+
+
+
+
+
+}, 1500);
+
+}
+
+// check CROSS
+function confirmCross(){
+  console.log('checking cross...')
+  let piecesExamined = 0;
+downLayerEdges.forEach((edge, edgeIndex) =>{
+
+  switch(edgeIndex){
+case 0:
+  if(edge[0] == "w" && edge[1] == 'r'){
+stageConditionObj['cross'].push(edge)
+  }
+  break;
+
+  case 1:
+  if(edge[0] == "w" && edge[1] == 'g'){
+stageConditionObj['cross'].push(edge)
+  }
+  break;
+
+  case 2:
+  if(edge[0] == "w" && edge[1] == 'o'){
+stageConditionObj['cross'].push(edge)
+  }
+  break;
+
+  case 3:
+  if(edge[0] == "w" && edge[1] == 'b'){
+stageConditionObj['cross'].push(edge)
+  }
+  break;
+  }
+
+  // AFTER EACH PUSH, INCREMENT THE PIECES EXAMINED VARIABLE
+  piecesExamined ++
+})
+
+// run pre solve check again, which will check cross status and check next stage if the cross is complete or initiate down layer cross check function. 
+
+if(piecesExamined > 3){
+  let crossArray = stageConditionObj['cross']
+  console.log('cross array')
+console.log(crossArray)
+nextStage('F2L', 'cross', crossArray)
+
+}
+
+
+}
+
+
+// check F2L PAIRS
+function confirmF2L(){
+  console.log('checking F2L...')
+  let cornerCheckArray = []
+  let edgeCheckArray = []
+  let completeArray = []
+
+  // get F2L corner pieces
+  downLayerCorners.forEach((corner) =>{
+    cornerCheckArray.push(corner)
+  })
+
+  // get F2L edge pieces
+  midLayerEdges.forEach((edge) =>{
+    edgeCheckArray.push(edge)
+  })
+
+  // store corner and edge arrays in an object
+  let F2L_Obj = {
+    'corner':cornerCheckArray, 
+    'edge': edgeCheckArray,
+  }
+  // keep track of the number of objects assessed
+  let objectsAssessedTotal = 0;
+
+  // if the pairs are matching then 
+  F2L_Obj['corner'].forEach((cornerObject, index) =>{
+    if(cornerObject[1] == F2L_Obj['edge'][index][0] && cornerObject[2] == F2L_Obj['edge'][index][1]){
+      // CHECK IF THE PAIR ARE IN THE CORRECT POSITION
+
+      // check that the solved pair belongs at the current index
+      if(index === 0 && (cornerObject[1] == 'r' && cornerObject [2] == 'g')){
+        completeArray.push(index)
+      }else if(index === 1 && (cornerObject[1] == 'o' && cornerObject [2] == 'g')){
+        completeArray.push(index)
+      }else if(index === 2 && (cornerObject[1] == 'o' && cornerObject [2] == 'b')){
+        completeArray.push(index)
+      }else if(index === 3 && (cornerObject[1] == 'r' && cornerObject [2] == 'b')){
+        completeArray.push(index)
+      }else{
+        console.log('F2L pair is solved but positioned incorrectly')
+      }
+
+
+    }
+    objectsAssessedTotal ++
+  })
+
+  if(objectsAssessedTotal > 3){
+    nextStage('OLL_edges', 'F2L', completeArray)
+  }
+
+}
+
+
+
+
+
+
+// check OLL EDGES
+function confirmOLLEdges(){
+  console.log('checking OLL edges..')
+  let totalEdgesAssessed = 0
+  let completeArray = []
+  upLayerEdges.forEach(edge =>{
+
+    if(edge[0] == 'y'){
+
+      completeArray.push(edge)
+    }
+    totalEdgesAssessed ++
+  })
+
+  if(totalEdgesAssessed > 3){
+    nextStage('OLL_corners', 'OLL_edges', completeArray)
+  }
+
+
+}
+
+// check OLL CORNERS
+function confirmOLLCorners(){
+  console.log('checking OLL corners..')
+  let cornerTotal = 0
+  let completeArray = []
+ 
+  upLayerCorners.forEach(corner =>{
+    cornerTotal ++
+    if(corner[0] == 'y'){
+      completeArray.push(corner)
+    }
+  })
+
+  if(cornerTotal > 3){
+    nextStage('PLL_corners', 'OLL_corners', completeArray)
+
   }
 }
 
+// CHECK PERMUTED CORNERS
+function confirmPLLCorners(){
+  console.log('checking PLL corners...')
+  // array for completed F2L corners
+  let completeArray = []
+  let cornersAssessedTotal = 0
+  upLayerCorners.forEach((corner, index) =>{
 
+          // check that the corner is at the current index
+          if(index === 0 && (corner[1] == 'r' && corner [2] == 'g')){
+            completeArray.push(index)
+          }else if(index === 1 && (corner[1] == 'o' && corner [2] == 'g')){
+            completeArray.push(index)
+          }else if(index === 2 && (corner[1] == 'o' && corner [2] == 'b')){
+            completeArray.push(index)
+          }else if(index === 3 && (corner[1] == 'r' && corner [2] == 'b')){
+            completeArray.push(index)
+          }else{
+            console.log('corner positioned incorrectly')
+          }
+cornersAssessedTotal ++
+  })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function assessLastLayerPermutation(){
-
+  if(cornersAssessedTotal > 3){
+    preSolveCheck('PLL_edges', completeArray)
+  }
 }
 
+function confirmPLLEdges(){
+  console.log('checking PLL edges')
+  let completeArray = []
+  let edgesAssessedTotal = 0;
+  upLayerEdges.forEach((edge, index) =>{
+    // check that the solved pair belongs at the current index
+    if(index === 0 && edge[1] == 'r'){
+      completeArray.push(index)
+    }else if(index === 1 && edge[1] == 'g'){
+      completeArray.push(index)
+    }else if(index === 2 && edge[1] == 'o'){
+      completeArray.push(index)
+    }else if(index === 3 && edge[1] == 'b'){
+      completeArray.push(index)
+    }else{
+      console.log('EDGE is positioned incorrectly')
+    }
+edgesAssessedTotal ++
+})
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if(edgesAssessedTotal > 3){
+  preSolveCheck('END_OF_CHECK', completeArray)
+}
+}
 
 
 
