@@ -58,3 +58,37 @@ edgesAssessedTotal ++
 
 
 }
+
+
+
+
+
+// PLL CORNERS ASSESSMENT FUNCTION
+function assessPLLCorners(){
+console.log('assessing PLL corners')
+
+// array for completed F2L corners
+let permutationArray = []
+let cornersAssessedTotal = 0
+upLayerCorners.forEach((corner, index) =>{
+
+        // check which corner facet details and push the natural index that the corner belongs to, to the permutation array.   Each position in the permutation array represents an index position on the cube corners; so if the permutation array is not [0, 1, 2, 3], but some other permutation, then some or all of the corners are incorrectly placed.  And based on the permutation, an algorithm can be determined to rearrange the corners to the 'identity' permutation above. 
+        if((corner[1] == 'r' && corner [2] == 'g')){
+          permutationArray.push(0)
+        }else if((corner[1] == 'o' && corner [2] == 'g')){
+          permutationArray.push(1)
+        }else if((corner[1] == 'o' && corner [2] == 'b')){
+          permutationArray.push(2)
+        }else if((corner[1] == 'r' && corner [2] == 'b')){
+          permutationArray.push(3)
+        }
+cornersAssessedTotal ++
+})
+
+if(cornersAssessedTotal > 3){
+  console.log('permutationArray')
+  console.log(permutationArray)
+ 
+}
+
+}

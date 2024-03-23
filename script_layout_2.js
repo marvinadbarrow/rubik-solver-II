@@ -4998,12 +4998,12 @@ orientedIndexes.push(index)
       totalOriented = totalOriented
     }
   } )
-  // if there is at least one oriented edge
+  // if there is at least two  oriented edges (as the F2L stage is complete, it is impossible to have only one oriented last layer edge piece; that would be parity, which does not exist on a 3x3 cube - unless a cubie has been physically removed and replaced at an incorrect orientation)
 if(totalOriented > 0){
 
   // if four are oriented then move onto orienting corners
   if(orientedIndexes.length === 4){
-    console.log('four cross pieces on up layer;orient corners')
+    console.log('four cross pieces on up layer;orient edges')
     console.log(orientedIndexes)
   }else{
 // number of oriented edges is 2; there cannot be 1 or 3 oriented edges because that is a parity case which doesn't exist for cubes with an odd number of rows and columns.  Only 0, 2 and 4 last layer edges can be correctly oriented when the rest of the cube is solved up to F2L - get the sum of the indexes of the oriented edges
@@ -5058,25 +5058,6 @@ confirmOLLEdges()
 
  
 }
-
-
-
-function assessPLLCorners(){
-console.log('assessing PLL corners')
-
-}
-
-function assessPLLEdges(){
-console.log('assessing PLL edges')
-
-}
-
-function cubeComplete(){
-  console.log('cube is complete')
-}
-
-
-
 
 
 
@@ -5407,6 +5388,175 @@ function solveSpider(cornerName){
 
 
 
+
+
+
+// variable to prevent infinite loop; if the variable is greater than 3, the function will not execute the next step
+let loopPrevention = 0
+
+// PLL CORNERS ASSESSMENT FUNCTION
+function assessPLLCorners(){
+  console.log('assessing PLL corners')
+  
+  // array for completed F2L corners
+  let permutationArray = []
+// for permutation array adjusted after the natural zero index piece is rotated to index position zero
+let adjustedPermutationArray = []
+// variable for joined and stringified values of adjusted permutation array
+let stringPermutation;
+
+  // for the number of corners assessed
+  let cornersAssessedTotal = 0
+  // variable for the corner which has natural index zero - this will be the MASTER corner
+  let masterCornerIndex; 
+  // variable for distance between Master current index and master's natural index
+  let masterDisplacement;
+  // array for rotations parameter to execute algorithm
+  let algoArray = []
+  // variable for adjustment move to position the last layer for the solve algorithm
+  let adjustmentMove;
+  // THE SINGLE ALGORITHM USED
+  let solvingAlgo = [R, U2, R2, F, R, FP, R, UP, RP, FP, U, F, R, UP, RP]
+  // SPECIAL ALGORITHM FOR ANTI IDENTITY CASE
+  let inverseRepeater = [LP, U, RP, U2, L, UP, R]
+  let inverseIdentityAlgo = [...inverseRepeater, 'next', ...inverseRepeater]
+  // specific algo for '0213' permutation not working
+  let permutation0213cornerOLL = [L, U2, L2, B, L, BP, L, UP, LP, BP, U, B, L, UP, LP]
+
+
+
+  
+  upLayerCorners.forEach((corner, index) =>{
+  console.log('corner')
+  console.log(corner)
+          // check which corner facet details and push the natural index that the corner belongs to, to the permutation array.   Each position in the permutation array represents an index position on the cube corners; so if the permutation array is not [0, 1, 2, 3], but some other permutation, then some or all of the corners are incorrectly placed.  And based on the permutation, an algorithm can be determined to rearrange the corners to the 'identity' permutation above. 
+          if((corner.includes('r') && corner.includes('g'))){
+            permutationArray.push(0)
+          }else if((corner.includes('o') && corner.includes('g'))){
+            permutationArray.push(1)
+          }else if((corner.includes('o') && corner.includes('b'))){
+            permutationArray.push(2)
+          }else if((corner.includes('r') && corner.includes('b'))){
+            permutationArray.push(3)
+          }
+  cornersAssessedTotal ++
+  })
+  
+
+  if(cornersAssessedTotal > 3){
+    console.log('permutationArray')
+    console.log(permutationArray)
+
+    // find the position of the corner whose natural index is 'zero'
+permutationArray.forEach((perm, permIndex) =>{
+  if(perm === 0){
+masterCornerIndex = permIndex
+  }
+
+})
+ console.log('index of zero corner piece')
+console.log(masterCornerIndex)
+// get the difference between the master's current index and its natural index zero.  For this calculation, given that it is the master that will be moved, use a difference calculation and subtract the master's current index from zero.  
+masterDisplacement = (0 - masterCornerIndex + 4)%4
+// this will always give a positive value between 0 and 3; Example. the highest master index value will be 3, giving (0 -3 + 4)%4 = 1%4 = 1 meaning just a U rotation. 
+
+console.log(masterDisplacement)
+// all of the values of the permutation array have to be adjusted so that the first element in the array has the value of zero.  Then it can be compared to the six base cases for rotated combinations of corner positions.  map the permutations array to create the updated permutation
+// adjustedPermutationArray = permutationArray.map((permutation) =>
+//   (permutation + masterDisplacement)%4
+// )
+
+// don't forget that the pre rotation is actually needed for this. 
+switch(masterDisplacement){
+  case 0: adjustmentMove = 'N/A'
+    break;
+    case 1: adjustmentMove = UP
+      break;
+      case 2: adjustmentMove = U2
+        break;
+        case 3: adjustmentMove = U
+          break;
+
+}
+
+
+permutationArray.forEach((permutation, indexOfPermutation) =>{
+adjustedPermutationArray[(indexOfPermutation + masterDisplacement)%4] = permutation
+}
+
+)
+
+
+
+// check that the indexes have all shifted
+console.log(adjustedPermutationArray)
+// join and stringify the adjusted permutation array
+stringPermutation = adjustedPermutationArray.join('').toString()
+
+// now switch the string and compose the array algorithm with the adjustment move and the algorithm which solves the arrangement of corners. 
+
+switch(stringPermutation){
+    case '0132':
+     algoArray = [adjustmentMove, UP, 'next',  ...solvingAlgo, 'next',  U]
+    break;
+    case '0213':
+      algoArray = [adjustmentMove, ...permutation0213cornerOLL]
+    break;
+    case '0231':
+      algoArray = [adjustmentMove, ...solvingAlgo, 'next',  UP] 
+    break;
+    case '0312':
+      algoArray = [adjustmentMove, U, 'next',  ...solvingAlgo]
+    break;
+    case '0321':
+      algoArray = [...inverseIdentityAlgo, U2]
+    break;
+    case '0123': 
+    algoArray = [adjustmentMove, 'N/A']
+      break;
+}
+
+// get length of algo array length so that the timing of the algorithm can be worked out so that the results can be checked after the completion of the algorithm. 
+
+let algorithmDuration = algoArray.length + 2
+// execute algorithm
+algorithmExecution(algoArray)   
+loopPrevention ++
+
+if(loopPrevention < 4){
+  setTimeout(() => {
+    console.log('algorithm complete')
+    confirmPLLCorners()
+  }, algorithmDuration*1600);
+}
+
+  }
+  
+  }
+
+
+
+
+
+
+// PLL EDGES ASSESSMENT
+function assessPLLEdges(){
+console.log('assessing PLL edges')
+
+}
+
+
+// POST PLL EDGES - CUBE COMPLETE
+function cubeComplete(){
+  console.log('cube is complete')
+}
+
+
+
+
+
+
+
 function preSolveCheck(stageToCheck, array){
 switch(stageToCheck){
   // case 'cross': // cross is the first stage to be assessed
@@ -5728,22 +5878,24 @@ function confirmOLLCorners(){
   }
 }
 
-// CHECK PERMUTED CORNERS
+// CHECK PLL CORNERS
 function confirmPLLCorners(){
   console.log('checking PLL corners...')
   // array for completed F2L corners
   let completeArray = []
   let cornersAssessedTotal = 0
   upLayerCorners.forEach((corner, index) =>{
+    console.log('PLL corner')
+console.log(corner)
 
-          // check that the corner is at the current index
-          if(index === 0 && (corner[1] == 'r' && corner [2] == 'g')){
+          // check that the current corner is at the CORRECT index - if the wrong colours are at the examined index, then the index is not pushed to the array.  
+          if(index === 0 && (corner.includes('r') && corner.includes('g') )){
             completeArray.push(index)
-          }else if(index === 1 && (corner[1] == 'o' && corner [2] == 'g')){
+          }else if(index === 1 && (corner.includes('o') && corner.includes('g') )){
             completeArray.push(index)
-          }else if(index === 2 && (corner[1] == 'o' && corner [2] == 'b')){
+          }else if(index === 2 && (corner.includes('o') && corner.includes('b') )){
             completeArray.push(index)
-          }else if(index === 3 && (corner[1] == 'r' && corner [2] == 'b')){
+          }else if(index === 3 && (corner.includes('r') && corner.includes('b') )){
             completeArray.push(index)
           }else{
             console.log('corner positioned incorrectly')
@@ -5752,10 +5904,10 @@ cornersAssessedTotal ++
   })
 
   if(cornersAssessedTotal > 3){
-    preSolveCheck('PLL_edges', completeArray)
+    nextStage('PLL_edges', 'PLL_corners', completeArray)
   }
 }
-
+// CHECK PLL EDGES
 function confirmPLLEdges(){
   console.log('checking PLL edges')
   let completeArray = []
@@ -5875,6 +6027,7 @@ case 'B2':
   backRotate('b2-btnless', 'double')
 break;
 case 'N/A':
+case 'next':
   console.log('null move')
   rotationName = 'no rotation'
     }
