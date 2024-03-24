@@ -218,7 +218,8 @@ let solvedF2LIndexesArray = []
 // array for cross edges on middle layer
 let lastLayerCrossEdgesArray = []
 
-
+// when all stages are complete, each face of the cube will be checked, and the value in the zero position of this array will be incremented if for each face examined, all the facets of that face are the same colour.  If the value of the solved faces array reaches 6, then the cube is solved. 
+let solvedFacesArray = [0]
 
 
 
@@ -2310,7 +2311,8 @@ let fourthMoveNew
 // when there are cross pieces already on the down layer, there needs to be an extra step to  undo the d-prime move that enabled the insertion of the cross piece from the mid layer.  This will ensure that if the cross was already permuted, but just  one cross piece was incorrectly oriented, when that piece is oriented, D-rotation to undo the D-prime move will set the down layer to the calibration position, which will put the cross into the solved position. 
 
 switch(childIndex){
-  case 0: // white facet is on back face
+  case 0:
+            faceColour = 'y' // white facet is on back face
   firstMoveNew = B;
   secondMoveNew = DP;
   thirdMoveNew = R;
@@ -5586,6 +5588,9 @@ edgesAssessedTotal ++;
 
 console.log(permutationArray)
 
+
+
+
 // first check the current index position of the edge whose natural index position is zero. If it is not position at the zero index, it needs to be moved there as it will serve as the Master edge on which all the permutations are based, after which, they can be adjusted prior to determining the solving algorithms. 
 permutationArray.forEach((perm, permIndex) =>{
   if(perm === 0){
@@ -5749,7 +5754,7 @@ switch(stageToCheck){
   if(array.length > 3){
     console.log(' PLL edges stage is complete, CUBE IS SOLVED')
     stageConditionObj['completed_stage'] = 'PLL_edges'
-    stageConditionObj['incomplete_stage'] = 'none'
+    stageConditionObj['incomplete_stage'] = 'SOLVED'
    
   }else{
     console.log('PLL edges stage INCOMPLETE...')
@@ -5817,7 +5822,7 @@ console.log(`current stage: ${current},  is INCOMPLETE`)
 
 
   console.log(`current stage: ${current},  is COMPLETE`)
- // switch the stage, and whichever is incomplete, execute the function needed to resolve the stage
+ // if the current  stage is the completed stage; that will be seen inside the preSolveCheck function, execute the next stage 
     switch(completedStage){
       case 'cross': 
     confirmF2L()
@@ -5835,10 +5840,9 @@ console.log(`current stage: ${current},  is INCOMPLETE`)
     confirmPLLEdges()
     break;
     case 'PLL_edges': 
-    cubeComplete()
+ finalFacesCheck()
     break;
-    case 'SOLVED':
-    break;
+  
 
     }
 
@@ -6064,6 +6068,73 @@ if(edgesAssessedTotal > 3){
   nextStage('SOLVED', 'PLL_edges', completeArray)
 }
 }
+
+
+
+
+
+// check all facets of all faces.  If the face facets are the same colour, and this is true for all faces, then the cube is solved. 
+function finalFacesCheck(){
+  // COLOR variable for checking all facets of each face is the same colour
+let faceColour;
+  cubeMatrixAlt.forEach((face, indexOfFace) =>{
+
+   switch(indexOfFace){
+      case 0:faceColour = 'y'
+      break;
+      case 1:faceColour = 'g'
+      break;
+      case 2:faceColour = 'o'
+      break;
+      case 3: faceColour = 'b'
+      break;
+      case 4:faceColour = 'w'
+      break;
+      case 5:faceColour = 'r'
+      break;
+   }
+   // examine the face to see if all facets are the same colour
+   examinFinalFaces(face, indexOfFace, faceColour)
+  })
+
+}
+
+
+
+
+
+
+
+
+function examinFinalFaces(face, indexOfFace, faceColour){
+  let FacetArray = [] // reset the temp facet array
+  face.forEach(row =>{ // each face is composed of 3 rows
+row.forEach(facet =>{ // there are three facets on a row
+  if(facet == faceColour){ 
+    FacetArray.push(faceColour)
+        }
+})
+  })
+  // after the face loop is complete if there are 9 elements in the facet array, then all of the facets on the face had the same value as facetColour.  The face is complete; increment the value at position zero of the solved faces array
+if(FacetArray.length > 8){
+solvedFacesArray[0] ++
+  }
+
+if(indexOfFace === 5){
+if(solvedFacesArray[0] === 6){
+  alert('cube is SOLVED')
+}else{
+  alert(` the cube is not solved, only ${solvedFacesArray[0]} out of 6 faces solved`)
+}
+}
+
+}
+
+
+
+
+
+
 
 
 
