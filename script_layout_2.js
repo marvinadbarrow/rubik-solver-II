@@ -5542,6 +5542,127 @@ if(loopPrevention < 4){
 // PLL EDGES ASSESSMENT
 function assessPLLEdges(){
 console.log('assessing PLL edges')
+  // array for completed F2L corners
+  let permutationArray = []
+// for permutation array adjusted after the natural zero index piece is rotated to index position zero
+let adjustedPermutationArray = []
+// variable for joined and stringified values of adjusted permutation array
+let stringPermutation;
+
+  // for the number of corners assessed
+  let edgesAssessedTotal = 0
+  // variable for the corner which has natural index zero - this will be the MASTER corner
+  let masterEdgeIndex; 
+  // variable for distance between Master current index and master's natural index
+  let masterDisplacement;
+  // array for rotations parameter to execute algorithm
+  let algoArray = []
+  // variable for adjustment move to position the last layer for the solve algorithm
+  let adjustmentMove;
+
+  let loopPrevention = 0;
+
+// two algorithms are needed for the case where one edge is solved and 3 are unsolved
+let clockwiseSolvingEdge = [L2, R2, DP, RP, L, B2, R, LP, DP, L2, R2]
+let anticlockSolvingEdge = [L2, R2, D, RP, L, B2, R, LP, D, L2, R2]
+let doubleCrossSolvingEdge = [L, U2, L2, B, L, BP, L, UP, LP, BP, U, B, L, UP, LP]
+
+  // loop through up layer edges and for each edge found, push its natural index to the permutation array.  The array shows the natural index of the piece sitting at a specific array.  In most cases the piece sitting at a position will in the wrong place; this will show up as a mismatch between the permutation array's index position numbers and the values at the positions.  In the 'all edges solved' case the permutation array will be [0, 1, 2, 3].  Other cases will be assessed so the correct algorithm can be determined to fix the arrangement of the edge piece; this will result in a solved cube since the permute edges stage is the last solving stage. 
+  upLayerEdges.forEach((edge, edgeIndex) =>{
+    if(edge[1] ==  'r'){
+      permutationArray.push(0)
+    }else if(edge[1] ==  'g'){
+      permutationArray.push(1)
+    }else if(edge[1] ==  'o'){
+      permutationArray.push(2)
+    }else if(edge[1] ==  'b'){
+      permutationArray.push(3)
+    }
+
+edgesAssessedTotal ++;
+  })
+
+  if(edgesAssessedTotal > 3){
+
+console.log(permutationArray)
+
+// first check the current index position of the edge whose natural index position is zero. If it is not position at the zero index, it needs to be moved there as it will serve as the Master edge on which all the permutations are based, after which, they can be adjusted prior to determining the solving algorithms. 
+permutationArray.forEach((perm, permIndex) =>{
+  if(perm === 0){
+masterEdgeIndex = permIndex
+  }
+})
+
+
+// get the difference between the master's current index and its natural index zero.  For this calculation, given that it is the master that will be moved, use a difference calculation and subtract the master's current index from zero.  Then add 4 to compensate for negative numbers; rotations will be based on forward distance (even though 3 rotations will execute the prime rotation on the up layer)
+masterDisplacement = (0 - masterEdgeIndex + 4)%4
+
+console.log('master displacement from zero')
+console.log(masterDisplacement)
+
+// switch displacement to determine rotation needed to get the piece to the zero index. The adjustment Move variable takes the rotation value
+switch(masterDisplacement){
+  case 0: adjustmentMove = 'N/A'
+    break;
+    case 1: adjustmentMove = UP
+      break;
+      case 2: adjustmentMove = U2
+        break;
+        case 3: adjustmentMove = U
+          break;
+
+}
+
+// adjust permutations in the permutations array using master displacement, so all permutations begin at the zero index. Push the new values to the adjusted permutations array
+permutationArray.forEach((permutation, indexOfPermutation) =>{
+  adjustedPermutationArray[(indexOfPermutation + masterDisplacement)%4] = permutation
+  }
+  )
+
+// join the elements of the new array, and stringify for examination in a switch statement to distinguish the 6 different permutations that result from the adjustment
+stringPermutation = adjustedPermutationArray.join('').toString()
+
+
+// check stringified permutation and populate algorithm array with the solving algorithm for the specific case
+switch(stringPermutation){
+  case '0132':
+   algoArray = [adjustmentMove, ...clockwiseSolvingEdge, UP]
+  break;
+  case '0213':
+    algoArray = [adjustmentMove, UP, ...clockwiseSolvingEdge]
+  break;
+  case '0231':
+    algoArray = [adjustmentMove, U, ...clockwiseSolvingEdge, U] 
+  break;
+  case '0312':
+    algoArray = [adjustmentMove, UP, ...anticlockSolvingEdge, UP]
+  break;
+  case '0321':
+    algoArray = [, adjustmentMove, ...doubleCrossSolvingEdge, UP]
+  break;
+  case '0123': 
+  algoArray = [adjustmentMove, 'N/A']
+    break;
+}
+
+// get algorithm duration so solve can be examined after the completion of algorithm
+
+let algorithmDuration = algoArray.length + 2
+// execute algorithm
+algorithmExecution(algoArray)   
+loopPrevention ++
+
+if(loopPrevention < 4){
+  setTimeout(() => {
+    console.log('algorithm complete')
+    confirmPLLEdges()
+  }, algorithmDuration*1600);
+}
+
+
+
+
+  }
 
 }
 
@@ -5624,7 +5745,7 @@ switch(stageToCheck){
   }
   
   break;
-  case 'END_OF_CHECK':   // post PLL edges check array
+  case 'SOLVED':   // post PLL edges check array
   if(array.length > 3){
     console.log(' PLL edges stage is complete, CUBE IS SOLVED')
     stageConditionObj['completed_stage'] = 'PLL_edges'
@@ -5636,6 +5757,7 @@ switch(stageToCheck){
  
   }
   break;
+ 
 
 }
 
@@ -5714,6 +5836,8 @@ console.log(`current stage: ${current},  is INCOMPLETE`)
     break;
     case 'PLL_edges': 
     cubeComplete()
+    break;
+    case 'SOLVED':
     break;
 
     }
@@ -5907,6 +6031,14 @@ cornersAssessedTotal ++
     nextStage('PLL_edges', 'PLL_corners', completeArray)
   }
 }
+
+
+
+
+
+
+
+
 // CHECK PLL EDGES
 function confirmPLLEdges(){
   console.log('checking PLL edges')
@@ -5929,7 +6061,7 @@ edgesAssessedTotal ++
 })
 
 if(edgesAssessedTotal > 3){
-  preSolveCheck('END_OF_CHECK', completeArray)
+  nextStage('SOLVED', 'PLL_edges', completeArray)
 }
 }
 
