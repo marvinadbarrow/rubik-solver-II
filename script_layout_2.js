@@ -1,4 +1,5 @@
 
+
 let debugArray = [
 ]
 
@@ -4688,7 +4689,7 @@ pairObj['solved_edge'] = true // matching edges
   // the information needed for the final solve of F2L corner/edge pairs is: axis of white, the solvedEdge boolean, the natural vertical index of the F2L corner/edge pair, and the orientation of the piece with respect to the face that shares the same index as the natural index. 
   if(solvedF2LIndexesArray.length < 4){
     generateF2LPairAlgorithm(pairObj)
-  }
+  }else{confirmF2L()}
  
 
 }, 2500);
@@ -5422,9 +5423,10 @@ let stringPermutation;
   // SPECIAL ALGORITHM FOR ANTI IDENTITY CASE
   let inverseRepeater = [LP, U, RP, U2, L, UP, R]
   let inverseIdentityAlgo = [...inverseRepeater, 'next', ...inverseRepeater]
-  // specific algo for '0213' permutation not working
-  let permutation0213cornerOLL = [L, U2, L2, B, L, BP, L, UP, LP, BP, U, B, L, UP, LP]
+  // specific algo for '0213' permutation not working;  it's the same algorithm, but performed as though the view is from the back of the cube, but it is performed from the front of the cube. 
 
+  let permutation0213cornerOLL = [L, U2, L2, B, L, BP, L, UP, LP, BP, U, B, L, UP, LP]
+  
 
 
   
@@ -5550,6 +5552,8 @@ console.log('assessing PLL edges')
 let adjustedPermutationArray = []
 // variable for joined and stringified values of adjusted permutation array
 let stringPermutation;
+// array for permutation where one top row of a face is solved
+let partSolvedPermutationArray = []
 
   // for the number of corners assessed
   let edgesAssessedTotal = 0
@@ -5561,13 +5565,17 @@ let stringPermutation;
   let algoArray = []
   // variable for adjustment move to position the last layer for the solve algorithm
   let adjustmentMove;
+  // to move the up layer back to the solved position
+  let readjustmentMove;
 
   let loopPrevention = 0;
+  // variable to remove solved index from permutation of cases where one solved face exists. 
+  let stringRemoval;
 
 // two algorithms are needed for the case where one edge is solved and 3 are unsolved
 let clockwiseSolvingEdge = [L2, R2, DP, RP, L, B2, R, LP, DP, L2, R2]
 let anticlockSolvingEdge = [L2, R2, D, RP, L, B2, R, LP, D, L2, R2]
-let doubleCrossSolvingEdge = [L, U2, L2, B, L, BP, L, UP, LP, BP, U, B, L, UP, LP]
+
 
   // loop through up layer edges and for each edge found, push its natural index to the permutation array.  The array shows the natural index of the piece sitting at a specific array.  In most cases the piece sitting at a position will in the wrong place; this will show up as a mismatch between the permutation array's index position numbers and the values at the positions.  In the 'all edges solved' case the permutation array will be [0, 1, 2, 3].  Other cases will be assessed so the correct algorithm can be determined to fix the arrangement of the edge piece; this will result in a solved cube since the permute edges stage is the last solving stage. 
   upLayerEdges.forEach((edge, edgeIndex) =>{
@@ -5587,81 +5595,190 @@ edgesAssessedTotal ++;
   if(edgesAssessedTotal > 3){
 
 console.log(permutationArray)
+adjustedPermutationArray = [...permutationArray]
+
+// there are four 'special' cases of permutations. The solved permutation, and three others,   I call them checkered and anti-checkered. The checkered permutation forms a checkerboard pattern on the sides of the last layer.  when this occurs, the edge pieces have the identity permutation, or one of the permutations related to it that result from rotating the up layer.  The anit-checkered looks checkered, excet that the top rows of two adjacent faces have their edges swapped, and the same exists for the other two adjacent faces.  So, for example, if the top row of face 1 has the edge of face 0, then the top row of face 0  has edge 1, then face 2 and 3 will have swapped edges on the top row. 
+
+// there is only one possible configuration of the checkered permutation, but there are two possible configurations for the anti-checkered, where face 0 and 1 are swapped and faces 2 and 3 are swapped, or alternatively, where 1 and 2 are swapped, and 3 and 0 are swapped.  Prior to rotating the zero edge to the zero position and recalculating the initial permutations, we'll deal with these special cases. Then all other permutations will be recalculated. 
 
 
+// FURTHER NOTE: in all of the above four cases, the edge pieces on opposite sides of the cube are of opposite colours. Also of note is that for the anti-checkered cases, they are just rotations of the of the anti-identity permutation 3210 or 0321.   The first checkered example is the anti-identity permutation, U-rotated,  and the second checkered example is the anti-identity permutation, U prime rotated.  The checkered case is just a rotation of the solved case permutation, 0123, but with a U2 rotation.  The anti-checkered cases are solved with the same algorithm; M2, U, M, U2, M2, U2, M, UP, M2 . The second anti-checkered case, which has permutation 3210, is solved without rotation, and the first case, which has permutation 1032, requires a U rotation first which needs to be undone after the algorithm is complete. The checkered solve is M2, U2, M2, UP, M2, U2, M2, U
 
-
+// The four permutations, one for each of these cases, should be checked for by an if/else condition which will separate them for specific algorithm construction.  join and stringify the the initial permutation and set a condition that identifies the four special cases
+initialPermutation = permutationArray.join('').toString()
 // first check the current index position of the edge whose natural index position is zero. If it is not position at the zero index, it needs to be moved there as it will serve as the Master edge on which all the permutations are based, after which, they can be adjusted prior to determining the solving algorithms. 
-permutationArray.forEach((perm, permIndex) =>{
-  if(perm === 0){
-masterEdgeIndex = permIndex
-  }
-})
 
+// for the checkered algorithm, there is a repeating set of five moves, the first one followed by a U prime rotation and the second is followed by the undoing U move.  The repeating algorithm is L2, R2, D3, L2, R2
+let checkeredAlgoArray = [L2, R2, D2, L2, R2, UP, L2, R2, D2, L2, R2, U]
+let antiChecheredAlgoArray = [L2, R2, D, LP, R, F2, L2, R2, B2, LP, R, DP, L2, R2]
 
-// get the difference between the master's current index and its natural index zero.  For this calculation, given that it is the master that will be moved, use a difference calculation and subtract the master's current index from zero.  Then add 4 to compensate for negative numbers; rotations will be based on forward distance (even though 3 rotations will execute the prime rotation on the up layer)
-masterDisplacement = (0 - masterEdgeIndex + 4)%4
-
-console.log('master displacement from zero')
-console.log(masterDisplacement)
-
-// switch displacement to determine rotation needed to get the piece to the zero index. The adjustment Move variable takes the rotation value
-switch(masterDisplacement){
-  case 0: adjustmentMove = 'N/A'
+console.log('initialPermutation')
+console.log(initialPermutation)
+switch(initialPermutation){
+  case '0123':
+    console.log('solved permutation')
+    console.log(initialPermutation)
+    algoArray = ['N/A']
     break;
-    case 1: adjustmentMove = UP
-      break;
-      case 2: adjustmentMove = U2
-        break;
-        case 3: adjustmentMove = U
-          break;
-
-}
-
-// adjust permutations in the permutations array using master displacement, so all permutations begin at the zero index. Push the new values to the adjusted permutations array
-permutationArray.forEach((permutation, indexOfPermutation) =>{
-  adjustedPermutationArray[(indexOfPermutation + masterDisplacement)%4] = permutation
-  }
-  )
-
-// join the elements of the new array, and stringify for examination in a switch statement to distinguish the 6 different permutations that result from the adjustment
-stringPermutation = adjustedPermutationArray.join('').toString()
-
-
-// check stringified permutation and populate algorithm array with the solving algorithm for the specific case
-switch(stringPermutation){
-  case '0132':
-   algoArray = [adjustmentMove, ...clockwiseSolvingEdge, UP]
-  break;
-  case '0213':
-    algoArray = [adjustmentMove, UP, ...clockwiseSolvingEdge]
-  break;
-  case '0231':
-    algoArray = [adjustmentMove, U, ...clockwiseSolvingEdge, U] 
-  break;
-  case '0312':
-    algoArray = [adjustmentMove, UP, ...anticlockSolvingEdge, UP]
-  break;
-  case '0321':
-    algoArray = [, adjustmentMove, ...doubleCrossSolvingEdge, UP]
-  break;
-  case '0123': 
-  algoArray = [adjustmentMove, 'N/A']
+  case '2301':
+    console.log('checkered permutation')
+    console.log(initialPermutation)
+    algoArray = [...checkeredAlgoArray]
     break;
-}
-
+  case '1032':
+    console.log('anti-checkered red/green - orange/blue permutation')
+    console.log(initialPermutation)
+    algoArray = [U, ...antiChecheredAlgoArray, UP]
+    break;
+  case '3210':
+    console.log('anti-checkered orange/green - red/blue permutation')
+    console.log(initialPermutation)
+    algoArray = [...antiChecheredAlgoArray]
+    break;
+    default:
+    
 // get algorithm duration so solve can be examined after the completion of algorithm
 
+
+
+
+
+
+// if none of the four special cases apply, then this means that one of the four side faces will be solved, i.e. its top row will be solved and the other three faces will be unsolved.  So by checking if all the colours match on one of the faces, one will be solved and the other three will be arranged in a specific manner. The up layer can be rotated so that the solved row is the top of front face.  then, the arrangement of the faces
+
+// get the top rows of the four side faces. 
+let greenTopRow = cubeMatrixAlt[1][0]
+let orangeTopRow = cubeMatrixAlt[2][0]
+let blueTopRow  = cubeMatrixAlt[3][0]
+let redTopRow = cubeMatrixAlt[5][0]
+console.log('greenTopRow')
+console.log(greenTopRow)
+console.log('orangeTopRow')
+console.log(orangeTopRow)
+console.log('blueTopRow')
+console.log(blueTopRow)
+console.log('redTopRow')
+console.log(redTopRow)
+
+
+// note that, at this stage the corners are solved so only the edge piece on a row can be not solved. So, if the switch fails for the other cases, then this means that one of the rows must have a solved edge and the entire row is solved, and is sitting in the correct place. Check which row is solved, and rotate to the position for solving 
+
+// remove the index position in the array that represents the solved edge. 
+// then recalculate the array values to account for the rotation
+//  stringify the resulting array, which will only have 3 elements. 
+// use the permutation string to determine the algorithm, none, anticlock or clockwise
+if(greenTopRow[0] == 'g' && greenTopRow[1] == 'g' && greenTopRow[2] == 'g'){
+ adjustmentMove = UP
+ readjustmentMove = U
+ masterDisplacement = 1
+stringRemoval = '1'
+ console.log('green face solved')
+// remove green index
+}else if(orangeTopRow[0] == 'o' && orangeTopRow[1] == 'o' && orangeTopRow[2] == 'o'){
+   adjustmentMove = 'N/A'
+   readjustmentMove = 'N/A'
+   masterDisplacement = 0
+   stringRemoval = '2'
+   console.log('orange face solved')
+   // remove orange index
+}else if(blueTopRow[0] == 'b' && blueTopRow[1] == 'b' && blueTopRow[2] == 'b'){
+   adjustmentMove = U
+   readjustmentMove = UP
+   masterDisplacement = 3
+   stringRemoval = '3'
+   console.log('blue face solved')
+   // remove blue index
+}else if(redTopRow[0] == 'r' && redTopRow[1] == 'r' && redTopRow[2] == 'r'){
+   adjustmentMove = U2
+   readjustmentMove = U2
+   masterDisplacement = 2
+   stringRemoval = '0'
+   console.log('red face solved')
+   // remove red index
+}
+
+
+
+permutationArray.forEach((permutation, indexOfPermutation) =>{
+
+    adjustedPermutationArray[(indexOfPermutation + masterDisplacement)%4] = permutation
+  })
+
+  console.log('adjusted permutation')
+console.log(adjustedPermutationArray)
+
+// stringify the adjusted permutation
+let stringifiedPermutation = adjustedPermutationArray.join('').toString()
+// now remove the the index of the solved face
+let recalibratedPermutation = stringifiedPermutation.replace(stringRemoval, '')
+console.log(recalibratedPermutation)
+
+// now the permutation is recalibrated, there are 12 possible cases, four of which are the identity and, of the eight remaining, four are solved with the clockWisesolvingEdge algorithm, and four are solved with the antiClockWiseSolvingEdge algorithm. 
+switch(recalibratedPermutation){
+  // orange face solved
+  case '301':
+algoArray = [adjustmentMove, ...clockwiseSolvingEdge, readjustmentMove]
+    break;
+  case '130':
+algoArray = [adjustmentMove, ...anticlockSolvingEdge, readjustmentMove]
+    break;
+  case '013':
+algoArray = [adjustmentMove, readjustmentMove]    
+    break;
+
+  // blue face solved
+  case '201':
+    algoArray = [adjustmentMove, ...anticlockSolvingEdge, readjustmentMove]
+        break;
+      case '120':
+    algoArray = [adjustmentMove, readjustmentMove]
+        break;
+      case '012':
+    algoArray = [adjustmentMove, ...clockwiseSolvingEdge, readjustmentMove]    
+        break;
+
+          // green face solved
+  case '302':
+    algoArray = [adjustmentMove, readjustmentMove]
+        break;
+      case '230':
+    algoArray = [adjustmentMove, ...clockwiseSolvingEdge, readjustmentMove]
+        break;
+      case '023':
+    algoArray = [adjustmentMove, ...anticlockSolvingEdge, readjustmentMove]    
+        break;
+
+         // red face solved
+         case '231':
+          algoArray = [adjustmentMove, readjustmentMove]
+              break;
+            case '312':
+          algoArray = [adjustmentMove, ...anticlockSolvingEdge, readjustmentMove]
+              break;
+            case '123':
+          algoArray = [adjustmentMove, ...clockwiseSolvingEdge, readjustmentMove]    
+              break;
+      
+}
+}
+
+
+if(algoArray.length > 0){
+// loop through the 
 let algorithmDuration = algoArray.length + 2
 // execute algorithm
 algorithmExecution(algoArray)   
-loopPrevention ++
+
 
 if(loopPrevention < 4){
   setTimeout(() => {
     console.log('algorithm complete')
     confirmPLLEdges()
   }, algorithmDuration*1600);
+}
+
+
+
 }
 
 
